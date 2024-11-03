@@ -58,6 +58,29 @@ def graficar_datos():
     
     st.pyplot(fig)
 
+# Función para graficar el promedio semanal de peso
+def graficar_promedio_semanal_peso():
+    worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_peso"])
+    data = worksheet.get_all_values()
+    df = pd.DataFrame(data[1:], columns=["Fecha", "Porcentaje de grasa", "Peso en kg"])
+    df['Porcentaje de grasa'] = pd.to_numeric(df['Porcentaje de grasa'])
+    df['Peso en kg'] = pd.to_numeric(df['Peso en kg'])
+    df['Fecha'] = pd.to_datetime(df['Fecha'])
+
+    # Agrupamos los datos por semana y calculamos el promedio de peso
+    df.set_index('Fecha', inplace=True)
+    df_semanal = df['Peso en kg'].resample('W').mean()
+
+    # Graficamos el promedio semanal de peso
+    plt.figure(figsize=(10, 6))
+    plt.plot(df_semanal.index, df_semanal.values, marker='o', linestyle='-')
+    plt.xlabel('Semana')
+    plt.ylabel('Promedio de Peso (kg)')
+    plt.title('Promedio Semanal de Peso')
+    plt.grid()
+
+    st.pyplot(plt)
+    
 # Función para calcular las calorías del día más reciente
 def calcular_calorias_dia_reciente():
     worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_calorias"])
@@ -76,6 +99,8 @@ opcion = st.radio("Selecciona una opción", ("Peso", "Calorías", "Gimnasio"))
 if opcion == "Peso":
     grasa = st.number_input("Porcentaje de grasa", min_value=0.0, max_value=100.0, step=0.1)
     peso = st.number_input("Peso en kg", min_value=0.0, max_value=300.0, step=0.1)
+    if st.button("Graficar Promedio Semanal de Peso"):
+    graficar_promedio_semanal_peso()
     if st.button("Registrar Peso"):
         resultado = registrar_datos(opcion, porcentaje_grasa=grasa, peso_kg=peso)
         st.success(resultado)
