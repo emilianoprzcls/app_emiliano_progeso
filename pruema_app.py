@@ -99,11 +99,13 @@ opcion = st.radio("Selecciona una opción", ("Peso", "Calorías", "Gimnasio"))
 if opcion == "Peso":
     grasa = st.number_input("Porcentaje de grasa", min_value=0.0, max_value=100.0, step=0.1)
     peso = st.number_input("Peso en kg", min_value=0.0, max_value=300.0, step=0.1)
-    if st.button("Graficar Promedio Semanal de Peso"):
-    graficar_promedio_semanal_peso()
+    
     if st.button("Registrar Peso"):
         resultado = registrar_datos(opcion, porcentaje_grasa=grasa, peso_kg=peso)
         st.success(resultado)
+
+    if st.button("Graficar Promedio Semanal de Peso"):
+        graficar_promedio_semanal_peso()
 
 elif opcion == "Calorías":
     calorias = st.number_input("Calorías consumidas", min_value=0.0, step=1.0)
