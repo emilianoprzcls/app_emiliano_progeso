@@ -94,7 +94,7 @@ def calcular_calorias_dia_reciente():
 
 # Streamlit app
 st.title("Registro de Peso, Calorías y Entrenamiento de Gimnasio")
-opcion = st.radio("Selecciona una opción", ("Peso", "Calorías", "Gimnasio"))
+opcion = st.radio("Selecciona una opción", ("Peso", "Calorías", "Gimnasio", "Progreso"))
 
 if opcion == "Peso":
     grasa = st.number_input("Porcentaje de grasa", min_value=0.0, max_value=100.0, step=0.1)
