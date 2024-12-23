@@ -46,17 +46,53 @@ def graficar_datos():
     df['Peso en kg'] = pd.to_numeric(df['Peso en kg'])
     df['Fecha'] = pd.to_datetime(df['Fecha'])
     
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    # Crear la figura y los ejes
+    fig, ax1 = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
+    fig.patch.set_facecolor('#0F1116')  # Fondo de la figura
+    ax1.set_facecolor('#313754')  # Fondo del área del gráfico
+    
+    # Crear un segundo eje Y
     ax2 = ax1.twinx()
-    ax1.plot(df['Fecha'], df['Peso en kg'], 'g-')
-    ax2.plot(df['Fecha'], df['Porcentaje de grasa'], 'b-')
     
-    ax1.set_xlabel('Fecha')
-    ax1.set_ylabel('Peso en kg', color='g')
-    ax2.set_ylabel('Porcentaje de grasa', color='b')
-    plt.title('Evolución de Peso y Porcentaje de Grasa')
+    # Graficar los datos
+    ax1.plot(
+        df['Fecha'], 
+        df['Peso en kg'], 
+        color='#5CD5DD', 
+        linestyle='-', 
+        label='Peso en kg'
+    )
+    ax2.plot(
+        df['Fecha'], 
+        df['Porcentaje de grasa'], 
+        color='#DB7DE4', 
+        linestyle='-', 
+        label='Porcentaje de grasa'
+    )
     
+    # Etiquetas y colores
+    ax1.set_xlabel('Fecha', fontsize=12, color='white')
+    ax1.set_ylabel('Peso en kg', fontsize=12, color='#5CD5DD')
+    ax2.set_ylabel('Porcentaje de grasa', fontsize=12, color='#DB7DE4')
+    
+    # Título
+    plt.title('Evolución de Peso y Porcentaje de Grasa', fontsize=14, color='white')
+    
+    # Personalizar los ticks
+    ax1.tick_params(axis='x', rotation=45, labelsize=10, labelcolor='white')
+    ax1.tick_params(axis='y', labelsize=10, labelcolor='#5CD5DD')
+    ax2.tick_params(axis='y', labelsize=10, labelcolor='#DB7DE4')
+    
+    # Agregar cuadrícula
+    ax1.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
+    
+    # Agregar leyendas
+    ax1.legend(loc='upper left', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    ax2.legend(loc='upper right', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    
+    # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
+
 
 # Función para graficar el promedio semanal de peso
 def graficar_promedio_semanal_peso():
@@ -71,15 +107,40 @@ def graficar_promedio_semanal_peso():
     df.set_index('Fecha', inplace=True)
     df_semanal = df['Peso en kg'].resample('W').mean()
 
-    # Graficamos el promedio semanal de peso
-    plt.figure(figsize=(10, 6))
-    plt.plot(df_semanal.index, df_semanal.values, marker='o', linestyle='-')
-    plt.xlabel('Semana')
-    plt.ylabel('Promedio de Peso (kg)')
-    plt.title('Promedio Semanal de Peso')
-    plt.grid()
-
-    st.pyplot(plt)
+    # Graficamos el promedio semanal de peso con los colores personalizados
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
+    
+    # Fondo de la figura y del eje
+    fig.patch.set_facecolor('#0F1116')  # Fondo de la figura
+    ax.set_facecolor('#313754')  # Fondo del área del gráfico
+    
+    # Graficar la línea del promedio semanal
+    ax.plot(
+        df_semanal.index, 
+        df_semanal.values, 
+        marker='o', 
+        linestyle='-', 
+        color='#5CD5DD',  # Color azul claro para la línea
+        label="Promedio de Peso"
+    )
+    
+    # Etiquetas y título
+    ax.set_xlabel('Semana', fontsize=12, color='white')
+    ax.set_ylabel('Promedio de Peso (kg)', fontsize=12, color='#5CD5DD')
+    ax.set_title('Promedio Semanal de Peso', fontsize=14, color='white')
+    
+    # Personalizar los ticks
+    ax.tick_params(axis='x', labelsize=10, labelcolor='white', rotation=45)
+    ax.tick_params(axis='y', labelsize=10, labelcolor='#5CD5DD')
+    
+    # Agregar cuadrícula
+    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color="#595D73")
+    
+    # Agregar leyenda
+    ax.legend(loc='best', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
     
 # Función para calcular las calorías del día más reciente
 def calcular_calorias_dia_reciente():
