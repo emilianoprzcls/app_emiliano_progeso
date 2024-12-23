@@ -106,6 +106,9 @@ if opcion == "Peso":
 
     if st.button("Graficar Promedio Semanal de Peso"):
         graficar_promedio_semanal_peso()
+    
+    if st.button("Graficar Evolución"):
+        graficar_datos()
 
 elif opcion == "Calorías":
     calorias = st.number_input("Calorías consumidas", min_value=0.0, step=1.0)
@@ -124,6 +127,3 @@ elif opcion == "Gimnasio":
 elif opcion == "Progreso":
     # Ejecuta el código de prueba.py
     runpy.run_path("progress_app.py")
-
-if st.button("Graficar Evolución"):
-    graficar_datos()

@@ -16,9 +16,11 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 
 # Listado de Ejercicios
 ejercicios_dict = {
-    "push": ["Bench Press", "Incline Bench Press", "Dips", "Overhead Press", "Lateral Raises", "Russian Twists", "Flyes"],
-    "pull": ["Pull-ups", "Lat Pulldowns", "Seated Pull", "Preacher Curls", "Spider Curl"],
-    "leg": ["Squat", "Romanian Deadlifts", "Leg Curls", "Hamstring Curl", "Bicycle Crunches"]
+    "push": ["Bench Press", "Incline Bench Press", "Dips", "Overhead Press", "Lateral Raises", "Flyes"],
+    "pull": ["Pull-ups", "Lat Pulldowns", "Seated Pull", "T-Row", "Free Row", "Preacher Curls", "Spider Curl", "Muscle Ups"],
+    "leg": ["Squat", "Romanian Deadlifts", "Leg Curls", "Hip Thrust","Belgian Split Squat"],
+    "abs": ["Crunch Machine", "Crunch Cables", "Crunch Acostado", "L-Sits","L-Pull"],
+    "PR": ["Squat", "Bench Press", "Dead Lift", "Pull Ups", "Chin Ups"]
 }
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
