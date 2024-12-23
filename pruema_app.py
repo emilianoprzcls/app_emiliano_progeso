@@ -118,9 +118,12 @@ elif opcion == "Calorías":
         st.info(resultado_calorias)
 
 elif opcion == "Gimnasio":
-    st.write("Cargando la aplicación de gimnasio...")
     # Ejecuta el código de prueba.py
     runpy.run_path("prueba.py")
+
+elif opcion == "Progreso":
+    # Ejecuta el código de prueba.py
+    runpy.run_path("progress_app.py")
 
 if st.button("Graficar Evolución"):
     graficar_datos()
