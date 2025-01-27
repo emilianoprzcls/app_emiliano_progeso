@@ -16,11 +16,91 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 
 # Listado de Ejercicios
 ejercicios_dict = {
-    "push": ["Bench Press", "Incline Bench Press", "Dips", "Overhead Press", "Lateral Raises", "Flyes"],
-    "pull": ["Pull-ups", "Lat Pulldowns", "Seated Pull", "T-Row", "Free Row", "Preacher Curls", "Spider Curl", "Muscle Ups"],
-    "leg": ["Squat", "Romanian Deadlifts", "Leg Curls", "Hip Thrust","Belgian Split Squat"],
-    "abs": ["Crunch Machine", "Crunch Cables", "Crunch Acostado", "L-Sits","L-Pull"],
-    "PR": ["Squat", "Bench Press", "Dead Lift", "Pull Ups", "Chin Ups"]
+    "push": [
+        "Bench Press",
+        "Incline Bench Press",
+        "Dips",
+        "Overhead Press",
+        "Lateral Raises",
+        "Flyes",
+        "Machine Chest Press",
+        "Chest Fly"
+    ],
+    "pull": [
+        "Pull-Ups",
+        "Lat Pulldowns",
+        "Seated Pull",
+        "T-Row",
+        "Free Row",
+        "Preacher Curls",
+        "Spider Curl",
+        "Muscle Ups",
+        "Pendlay Row",
+        "Shrug"
+    ],
+    "leg": [
+        "Squat",
+        "Hack Squat",
+        "Romanian Deadlifts",
+        "Leg Extension",
+        "Seated Leg Curl",
+        "Hip Thrust",
+        "Leg Curls",
+        "Belgian Split Squat",
+        "Calf Raises"
+    ],
+    "abs": [
+        "Crunch Machine",
+        "Crunch Cables",
+        "Crunch Acostado",
+        "L-Sits",
+        "L-Pull",
+        "Oblique Crunch"
+    ],
+    "PR": [
+        "Squat",
+        "Bench Press",
+        "Deadlift",
+        "Pull-Ups",
+        "Chin-Ups"
+    ],
+    "Pierna": [
+        "Hack Squat",
+        "Squat",
+        "Romanian Deadlifts",
+        "Leg Extension",
+        "Seated Leg Curl",
+        "Hip Thrust",
+        "Calf Raises"
+    ],
+    "Pecho y espalda": [
+        "Incline Bench Press",
+        "Pendlay Row",
+        "Bench Press",
+        "Machine Chest Press",
+        "Lat Pulldowns",
+        "Chest Fly",
+        "Shrug"
+    ],
+    "Brazo": [
+        "Overhead Tricep Extension",
+        "Shoulder Press",
+        "Preacher Curl",
+        "Lateral Raises",
+        "Tricep Extension",
+        "Rear Delt Fly",
+        "Bayesian Curl"
+    ],
+    "Upper": [
+        "Incline Bench Press",
+        "T-Row",
+        "Bench Press",
+        "Lat Pulldowns",
+        "Shoulder Press",
+        "Preacher Curl",
+        "Lateral Raises",
+        "Tricep Extension"
+    ]
 }
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
