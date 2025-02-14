@@ -71,7 +71,8 @@ ejercicios_dict = {
         "Leg Extension",
         "Seated Leg Curl",
         "Hip Thrust",
-        "Calf Raises"
+        "Calf Raises",
+        "Bulgarian Split Squat"
     ],
     "Pecho y espalda": [
         "Incline Bench Press",
@@ -80,7 +81,7 @@ ejercicios_dict = {
         "Machine Chest Press",
         "Lat Pulldowns",
         "Chest Fly",
-        "Shrug"
+        "Pull-Ups"
     ],
     "Brazo": [
         "Overhead Tricep Extension",
@@ -93,6 +94,7 @@ ejercicios_dict = {
     ],
     "Upper": [
         "Incline Bench Press",
+        "Pull-Ups",
         "T-Row",
         "Bench Press",
         "Lat Pulldowns",

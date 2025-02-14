@@ -94,7 +94,6 @@ def graficar_datos():
     st.pyplot(fig)
 
 
-# Función para graficar el promedio semanal de peso
 def graficar_promedio_semanal_peso():
     worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_peso"])
     data = worksheet.get_all_values()
@@ -103,42 +102,66 @@ def graficar_promedio_semanal_peso():
     df['Peso en kg'] = pd.to_numeric(df['Peso en kg'])
     df['Fecha'] = pd.to_datetime(df['Fecha'])
 
-    # Agrupamos los datos por semana y calculamos el promedio de peso
+    # Agrupamos los datos por semana y calculamos los promedios
     df.set_index('Fecha', inplace=True)
-    df_semanal = df['Peso en kg'].resample('W').mean()
+    df_semanal_peso = df['Peso en kg'].resample('W').mean()
+    df_semanal_grasa = df['Porcentaje de grasa'].resample('W').mean()
 
-    # Graficamos el promedio semanal de peso con los colores personalizados
-    fig, ax = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
-    
-    # Fondo de la figura y del eje
+    # Calculamos la variación semanal del peso
+    cambio_semanal = df_semanal_peso.diff()
+
+    # Crear la figura
+    fig, ax1 = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
     fig.patch.set_facecolor('#0F1116')  # Fondo de la figura
-    ax.set_facecolor('#313754')  # Fondo del área del gráfico
-    
-    # Graficar la línea del promedio semanal
-    ax.plot(
-        df_semanal.index, 
-        df_semanal.values, 
+    ax1.set_facecolor('#313754')  # Fondo del área del gráfico
+
+    # Segundo eje Y para el porcentaje de grasa
+    ax2 = ax1.twinx()
+
+    # Graficar la línea del promedio semanal de peso
+    ax1.plot(
+        df_semanal_peso.index, 
+        df_semanal_peso.values, 
         marker='o', 
         linestyle='-', 
-        color='#5CD5DD',  # Color azul claro para la línea
+        color='#5CD5DD',  # Azul claro para el peso
         label="Promedio de Peso"
     )
-    
-    # Etiquetas y título
-    ax.set_xlabel('Semana', fontsize=12, color='white')
-    ax.set_ylabel('Promedio de Peso (kg)', fontsize=12, color='#5CD5DD')
-    ax.set_title('Promedio Semanal de Peso', fontsize=14, color='white')
-    
+
+    # Agregar etiquetas con la variación semanal de peso
+    for i, (x, y) in enumerate(zip(df_semanal_peso.index, df_semanal_peso.values)):
+        if i > 0:  # Omitimos la primera porque no hay comparación
+            cambio = cambio_semanal.iloc[i]
+            ax1.text(x, y, f"{cambio:+.1f} kg", fontsize=10, color="white", ha='center')
+
+    # Graficar la línea del promedio semanal del porcentaje de grasa
+    ax2.plot(
+        df_semanal_grasa.index, 
+        df_semanal_grasa.values, 
+        marker='s', 
+        linestyle='-', 
+        color='#DB7DE4',  # Morado para el porcentaje de grasa
+        label="Promedio de Grasa"
+    )
+
+    # Etiquetas y títulos
+    ax1.set_xlabel('Semana', fontsize=12, color='white')
+    ax1.set_ylabel('Promedio de Peso (kg)', fontsize=12, color='#5CD5DD')
+    ax2.set_ylabel('Promedio de Porcentaje de Grasa (%)', fontsize=12, color='#DB7DE4')
+    ax1.set_title('Promedio Semanal de Peso y Porcentaje de Grasa', fontsize=14, color='white')
+
     # Personalizar los ticks
-    ax.tick_params(axis='x', labelsize=10, labelcolor='white', rotation=45)
-    ax.tick_params(axis='y', labelsize=10, labelcolor='#5CD5DD')
-    
+    ax1.tick_params(axis='x', labelsize=10, labelcolor='white', rotation=45)
+    ax1.tick_params(axis='y', labelsize=10, labelcolor='#5CD5DD')
+    ax2.tick_params(axis='y', labelsize=10, labelcolor='#DB7DE4')
+
     # Agregar cuadrícula
-    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color="#595D73")
-    
+    ax1.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color="#595D73")
+
     # Agregar leyenda
-    ax.legend(loc='best', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
-    
+    ax1.legend(loc='upper left', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    ax2.legend(loc='upper right', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
     
