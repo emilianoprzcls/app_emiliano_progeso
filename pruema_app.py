@@ -165,7 +165,6 @@ def graficar_promedio_semanal_peso():
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
     
-# Función para calcular las calorías del día más reciente
 def calcular_calorias_dia_reciente():
     worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_calorias"])
     data = worksheet.get_all_values()
@@ -178,7 +177,7 @@ def calcular_calorias_dia_reciente():
 
     return f"Calorías consumidas el día más reciente ({fecha_reciente}): {calorias_total} kcal"
 
-def calcular_promedio_semanal_calorias():
+def calcular_promedio_dos_semanas():
     worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_calorias"])
     data = worksheet.get_all_values()
     df = pd.DataFrame(data[1:], columns=["Fecha", "Calorías"])
@@ -186,19 +185,21 @@ def calcular_promedio_semanal_calorias():
     df['Calorías'] = pd.to_numeric(df['Calorías'])
 
     # Sumar calorías por día
-    df_diario = df.groupby(df['Fecha'].dt.date)['Calorías'].sum()
+    df_diario = df.groupby(df['Fecha'].dt.date)['Calorías'].sum().reset_index()
+    df_diario['Fecha'] = pd.to_datetime(df_diario['Fecha'])  # Asegurar que la columna es datetime
+    df_diario.set_index('Fecha', inplace=True)  # Convertir a índice de fecha
 
-    # Calcular promedio semanal basado en las observaciones disponibles
-    df_semanal = df_diario.resample('W-MON').sum()  # Total semanal
-    df_count = df_diario.resample('W-MON').count()  # Número de días con datos
+    # Filtrar las últimas dos semanas
+    fecha_max = df_diario.index.max()  # Última fecha registrada
+    fecha_inicio = fecha_max - pd.Timedelta(days=14)  # Últimas dos semanas
+    df_ultimas_dos_semanas = df_diario.loc[df_diario.index >= fecha_inicio]
 
-    df_promedio_semanal = (df_semanal / df_count).dropna()  # Evitar división por cero
-
-    if not df_promedio_semanal.empty:
-        promedio_reciente = df_promedio_semanal.iloc[-1]  # Último promedio disponible
-        return f"Promedio semanal de calorías consumidas: {promedio_reciente:.2f} kcal"
+    # Calcular el promedio
+    if not df_ultimas_dos_semanas.empty:
+        promedio = df_ultimas_dos_semanas["Calorías"].mean()
+        return f"Promedio de calorías consumidas en las últimas dos semanas: {promedio:.2f} kcal"
     else:
-        return "No hay suficientes datos para calcular el promedio semanal."
+        return "No hay suficientes datos para calcular el promedio de las últimas dos semanas."
 
 # Streamlit app
 st.title("Registro de Peso, Calorías y Entrenamiento de Gimnasio")
@@ -229,8 +230,8 @@ elif opcion == "Calorías":
         resultado_calorias = calcular_calorias_dia_reciente()
         st.info(resultado_calorias)
 
-    if st.button("Calcular Promedio Semanal de Calorías"):
-        resultado_promedio = calcular_promedio_semanal_calorias()
+    if st.button("Calcular Promedio de Calorías en las Últimas 2 Semanas"):
+        resultado_promedio = calcular_promedio_dos_semanas()
         st.info(resultado_promedio)
 
 elif opcion == "Gimnasio":
