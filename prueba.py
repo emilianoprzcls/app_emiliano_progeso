@@ -16,39 +16,6 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 
 # Listado de Ejercicios
 ejercicios_dict = {
-    "push": [
-        "Bench Press",
-        "Incline Bench Press",
-        "Dips",
-        "Overhead Press",
-        "Lateral Raises",
-        "Flyes",
-        "Machine Chest Press",
-        "Chest Fly"
-    ],
-    "pull": [
-        "Pull-Ups",
-        "Lat Pulldowns",
-        "Seated Pull",
-        "T-Row",
-        "Free Row",
-        "Preacher Curls",
-        "Spider Curl",
-        "Muscle Ups",
-        "Pendlay Row",
-        "Shrug"
-    ],
-    "leg": [
-        "Squat",
-        "Hack Squat",
-        "Romanian Deadlifts",
-        "Leg Extension",
-        "Seated Leg Curl",
-        "Hip Thrust",
-        "Leg Curls",
-        "Belgian Split Squat",
-        "Calf Raises"
-    ],
     "abs": [
         "Crunch Machine",
         "Crunch Cables",

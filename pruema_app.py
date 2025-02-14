@@ -170,11 +170,35 @@ def calcular_calorias_dia_reciente():
     worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_calorias"])
     data = worksheet.get_all_values()
     df = pd.DataFrame(data[1:], columns=["Fecha", "Calorías"])
-    df['Fecha'] = pd.to_datetime(df['Fecha'])  # Convertir a formato datetime para manejar fechas
+    df['Fecha'] = pd.to_datetime(df['Fecha'])  # Convertir a formato datetime
     df['Calorías'] = pd.to_numeric(df['Calorías'])
+
     fecha_reciente = df['Fecha'].dt.date.max()
     calorias_total = df[df['Fecha'].dt.date == fecha_reciente]["Calorías"].sum()
+
     return f"Calorías consumidas el día más reciente ({fecha_reciente}): {calorias_total} kcal"
+
+def calcular_promedio_semanal_calorias():
+    worksheet = cargar_hoja(st.secrets["google_creds"]["spreadsheet_id_calorias"])
+    data = worksheet.get_all_values()
+    df = pd.DataFrame(data[1:], columns=["Fecha", "Calorías"])
+    df['Fecha'] = pd.to_datetime(df['Fecha'])  # Convertir a formato datetime
+    df['Calorías'] = pd.to_numeric(df['Calorías'])
+
+    # Sumar calorías por día
+    df_diario = df.groupby(df['Fecha'].dt.date)['Calorías'].sum()
+
+    # Calcular promedio semanal basado en las observaciones disponibles
+    df_semanal = df_diario.resample('W-MON').sum()  # Total semanal
+    df_count = df_diario.resample('W-MON').count()  # Número de días con datos
+
+    df_promedio_semanal = (df_semanal / df_count).dropna()  # Evitar división por cero
+
+    if not df_promedio_semanal.empty:
+        promedio_reciente = df_promedio_semanal.iloc[-1]  # Último promedio disponible
+        return f"Promedio semanal de calorías consumidas: {promedio_reciente:.2f} kcal"
+    else:
+        return "No hay suficientes datos para calcular el promedio semanal."
 
 # Streamlit app
 st.title("Registro de Peso, Calorías y Entrenamiento de Gimnasio")
@@ -183,19 +207,20 @@ opcion = st.radio("Selecciona una opción", ("Peso", "Calorías", "Gimnasio", "P
 if opcion == "Peso":
     grasa = st.number_input("Porcentaje de grasa", min_value=0.0, max_value=100.0, step=0.1)
     peso = st.number_input("Peso en kg", min_value=0.0, max_value=300.0, step=0.1)
-    
+
     if st.button("Registrar Peso"):
         resultado = registrar_datos(opcion, porcentaje_grasa=grasa, peso_kg=peso)
         st.success(resultado)
 
     if st.button("Graficar Promedio Semanal de Peso"):
         graficar_promedio_semanal_peso()
-    
+
     if st.button("Graficar Evolución"):
         graficar_datos()
 
 elif opcion == "Calorías":
     calorias = st.number_input("Calorías consumidas", min_value=0.0, step=1.0)
+    
     if st.button("Registrar Calorías"):
         resultado = registrar_datos(opcion, calorias=calorias)
         st.success(resultado)
@@ -204,10 +229,12 @@ elif opcion == "Calorías":
         resultado_calorias = calcular_calorias_dia_reciente()
         st.info(resultado_calorias)
 
+    if st.button("Calcular Promedio Semanal de Calorías"):
+        resultado_promedio = calcular_promedio_semanal_calorias()
+        st.info(resultado_promedio)
+
 elif opcion == "Gimnasio":
-    # Ejecuta el código de prueba.py
     runpy.run_path("prueba.py")
 
 elif opcion == "Progreso":
-    # Ejecuta el código de prueba.py
     runpy.run_path("progress_app.py")
