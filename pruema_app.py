@@ -189,17 +189,32 @@ def calcular_promedio_dos_semanas():
     df_diario['Fecha'] = pd.to_datetime(df_diario['Fecha'])  # Asegurar que la columna es datetime
     df_diario.set_index('Fecha', inplace=True)  # Convertir a índice de fecha
 
-    # Filtrar las últimas dos semanas
+    # Obtener la fecha más reciente y calcular los rangos de las últimas dos semanas
     fecha_max = df_diario.index.max()  # Última fecha registrada
-    fecha_inicio = fecha_max - pd.Timedelta(days=14)  # Últimas dos semanas
-    df_ultimas_dos_semanas = df_diario.loc[df_diario.index >= fecha_inicio]
+    fecha_inicio_semana_1 = fecha_max - pd.Timedelta(days=6)  # Inicio de la semana más reciente
+    fecha_inicio_semana_2 = fecha_inicio_semana_1 - pd.Timedelta(days=7)  # Inicio de la semana anterior
 
-    # Calcular el promedio
-    if not df_ultimas_dos_semanas.empty:
-        promedio = df_ultimas_dos_semanas["Calorías"].mean()
-        return f"Promedio de calorías consumidas en las últimas dos semanas: {promedio:.2f} kcal"
+    # Filtrar las dos semanas
+    df_semana_1 = df_diario.loc[(df_diario.index >= fecha_inicio_semana_1) & (df_diario.index <= fecha_max)]
+    df_semana_2 = df_diario.loc[(df_diario.index >= fecha_inicio_semana_2) & (df_diario.index < fecha_inicio_semana_1)]
+
+    # Calcular los promedios de cada semana
+    promedio_semana_1 = df_semana_1["Calorías"].mean() if not df_semana_1.empty else None
+    promedio_semana_2 = df_semana_2["Calorías"].mean() if not df_semana_2.empty else None
+
+    # Construir el mensaje de salida
+    mensaje = ""
+    if promedio_semana_1 is not None:
+        mensaje += f" **Última semana ({fecha_inicio_semana_1.date()} - {fecha_max.date()}):** {promedio_semana_1:.2f} kcal/día\n"
     else:
-        return "No hay suficientes datos para calcular el promedio de las últimas dos semanas."
+        mensaje += "No hay suficientes datos para calcular el promedio de la última semana.\n"
+
+    if promedio_semana_2 is not None:
+        mensaje += f" **Semana anterior ({fecha_inicio_semana_2.date()} - {fecha_inicio_semana_1.date()}):** {promedio_semana_2:.2f} kcal/día"
+    else:
+        mensaje += "No hay suficientes datos para calcular el promedio de la semana anterior."
+
+    return mensaje
 
 # Streamlit app
 st.title("Registro de Peso, Calorías y Entrenamiento de Gimnasio")
