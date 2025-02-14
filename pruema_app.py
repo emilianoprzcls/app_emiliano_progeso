@@ -207,7 +207,7 @@ def calcular_promedio_dos_semanas():
     if promedio_semana_1 is not None:
         mensaje += f" **Última semana ({fecha_inicio_semana_1.date()} - {fecha_max.date()}):** {promedio_semana_1:.2f} kcal/día\n"
     else:
-        mensaje += "No hay suficientes datos para calcular el promedio de la última semana.\n"
+        mensaje += "No hay suficientes datos para calcular el promedio de la última semana.\n\n"
 
     if promedio_semana_2 is not None:
         mensaje += f" **Semana anterior ({fecha_inicio_semana_2.date()} - {fecha_inicio_semana_1.date()}):** {promedio_semana_2:.2f} kcal/día"
