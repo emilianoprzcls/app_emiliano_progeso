@@ -209,12 +209,16 @@ def calcular_promedio_dos_semanas():
     else:
         mensaje += "No hay suficientes datos para calcular el promedio de la última semana.\n\n"
 
+    # Agregar un salto de línea entre las semanas
+    mensaje += "\n"
+
     if promedio_semana_2 is not None:
         mensaje += f" **Semana anterior ({fecha_inicio_semana_2.date()} - {fecha_inicio_semana_1.date()}):** {promedio_semana_2:.2f} kcal/día"
     else:
         mensaje += "No hay suficientes datos para calcular el promedio de la semana anterior."
 
     return mensaje
+
 
 # Streamlit app
 st.title("Registro de Peso, Calorías y Entrenamiento de Gimnasio")
