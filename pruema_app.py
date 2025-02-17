@@ -35,7 +35,7 @@ def registrar_datos(opcion, porcentaje_grasa=None, peso_kg=None, calorias=None):
         df = pd.DataFrame(data[1:], columns=["Fecha", "Calorías"])
         calorias_total = df[df["Fecha"] == fecha_actual]["Calorías"].astype(float).sum() + calorias
         worksheet.append_row([fecha_actual, calorias])
-        return f"Calorías consumidas hoy: {calorias_total} kcal"
+        return f"Calorías registradas: {calorias_total} kcal"
 
 # Función para graficar los datos de peso y grasa
 def graficar_datos():
