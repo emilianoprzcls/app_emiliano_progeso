@@ -37,6 +37,7 @@ ejercicios_dict = {
         "Hack Squat",
         "Squat",
         "Romanian Deadlifts",
+        "Leg Press",
         "Leg Extension",
         "Seated Leg Curl",
         "Hip Thrust",
@@ -68,7 +69,7 @@ ejercicios_dict = {
         "Bench Press",
         "Lat Pulldowns",
         "Shoulder Press",
-        "Preacher Curl",
+        "Bayesian Curl",
         "Lateral Raises",
         "Tricep Extension"
     ]
@@ -121,7 +122,7 @@ def graficar_progreso(ejercicio_seleccionado):
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-    plt.xticks(rotation=45, color='white')
+    plt.xticks(rotation=45, fontsize=12, color='white')
     
     # Etiquetas y título
     ax.set_xlabel("Fecha", fontsize=12, color='white')
@@ -142,47 +143,6 @@ def graficar_progreso(ejercicio_seleccionado):
     plt.gca().add_artist(legend1)
     
     # Mostrar gráfico en Streamlit
-    st.pyplot(fig)
-    df = obtener_datos()
-    df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
-    
-    if df_filtrado.empty:
-        st.warning("No hay datos para este ejercicio.")
-        return
-    
-    # Crear figura y ejes
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax2 = ax.twinx()  # Crear solo un eje secundario
-
-    # Obtener sets únicos
-    sets_unicos = sorted(df_filtrado["set"].unique())
-
-    for set_num in sets_unicos:
-        df_set = df_filtrado[df_filtrado["set"] == set_num]
-        df_set = df_set.sort_values(by="fecha")
-        
-        # Graficar peso
-        ax.plot(df_set["fecha"], df_set["kilos"], label=f"Set {set_num} - Kilos", marker='o')
-        
-        # Graficar repeticiones en eje secundario
-        ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', label=f"Set {set_num} - Reps", marker='x', color='red')
-
-    # Formateo del eje X
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-    plt.xticks(rotation=45)
-    
-    # Etiquetas y título
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Peso (kg)")
-    ax2.set_ylabel("Repeticiones")
-    ax.set_title(f"Progreso de {ejercicio_seleccionado}")
-    
-    # Leyendas
-    ax.legend(loc='upper left')
-    ax2.legend(loc='upper right')
-    
-    # Mostrar gráfico
     st.pyplot(fig)
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
