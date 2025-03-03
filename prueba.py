@@ -75,7 +75,6 @@ ejercicios_dict = {
 }
 
 
-# Función para obtener datos de Google Sheets
 def graficar_progreso(ejercicio_seleccionado):
     df = obtener_datos()
     df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
@@ -102,11 +101,11 @@ def graficar_progreso(ejercicio_seleccionado):
         df_set = df_filtrado[df_filtrado["set"] == set_num].sort_values(by="fecha")
         color = colores_sets.get(set_num, '#FFFFFF')  # Color por defecto si hay más sets
         
-        line_kilos, = ax.plot(df_set["fecha"], df_set["kilos"], label=f"Set {set_num} - Kilos", marker='o', color=color)
-        line_reps, = ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', label=f"Set {set_num} - Reps", marker='x', color=color)
+        line_kilos, = ax.plot(df_set["fecha"], df_set["kilos"], marker='o', color=color)
+        line_reps, = ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', marker='x', color=color)
         
-        legend_kilos.append(line_kilos)
-        legend_reps.append(line_reps)
+        legend_kilos.append((line_kilos, f"Set {set_num} - Kilos"))
+        legend_reps.append((line_reps, f"Set {set_num} - Reps"))
     
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
@@ -126,11 +125,14 @@ def graficar_progreso(ejercicio_seleccionado):
     # Agregar cuadrícula
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
-    # Agregar leyendas organizadas en dos filas
-    fig.legend(handles=legend_kilos + legend_reps, 
-               labels=[f"Set {i} - Kilos" for i in sets_unicos] + [f"Set {i} - Reps" for i in sets_unicos],
-               loc='lower center', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white', 
-               ncol=len(sets_unicos), bbox_to_anchor=(0.5, -0.15))
+    # Organizar leyenda en dos filas
+    handles_kilos, labels_kilos = zip(*legend_kilos)
+    handles_reps, labels_reps = zip(*legend_reps)
+    
+    legend1 = plt.legend(handles_kilos, labels_kilos, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    legend2 = plt.legend(handles_reps, labels_reps, loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    
+    plt.gca().add_artist(legend1)
     
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
