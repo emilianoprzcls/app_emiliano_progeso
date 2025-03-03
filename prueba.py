@@ -51,6 +51,7 @@ ejercicios_dict = {
         "Machine Chest Press",
         "Lat Pulldowns",
         "Chest Fly",
+        "Dips",
         "Pull-Ups"
     ],
     "Brazo": [
