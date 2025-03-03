@@ -138,6 +138,9 @@ def graficar_progreso(ejercicio_seleccionado):
     ax.tick_params(axis='y', labelsize=10, labelcolor='white')
     ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
     
+    # SOLUCIÓN: Ajustar el rango del eje de repeticiones de 0 a 20
+    ax2.set_ylim(0, 20)
+    
     # Agregar cuadrícula
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
@@ -148,6 +151,7 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
+
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
 def actualizar_ejercicios(grupo):
