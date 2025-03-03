@@ -123,6 +123,10 @@ def graficar_progreso(ejercicio_seleccionado):
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     plt.xticks(rotation=45, fontsize=12, color='white')
+
+    # SOLUCIÓN: Asegurar que las etiquetas del eje X sean blancas
+    for label in ax.get_xticklabels():
+        label.set_color('white')
     
     # Etiquetas y título
     ax.set_xlabel("Fecha", fontsize=12, color='white')
@@ -137,9 +141,9 @@ def graficar_progreso(ejercicio_seleccionado):
     # Agregar cuadrícula
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
-    # Agregar leyenda sencilla en dos filas, primero los kilos y luego las repeticiones
-    legend1 = plt.legend(handles_kilos, labels_kilos, loc='lower center', bbox_to_anchor=(0.5, -0.12), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
-    legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.20), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    # SOLUCIÓN: Mover la leyenda más abajo para que no se encime
+    legend1 = plt.legend(handles_kilos, labels_kilos, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     plt.gca().add_artist(legend1)
     
     # Mostrar gráfico en Streamlit
