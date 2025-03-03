@@ -36,7 +36,6 @@ ejercicios_dict = {
     "Pierna": [
         "Hack Squat",
         "Squat",
-        "Leg Press",
         "Romanian Deadlifts",
         "Leg Extension",
         "Seated Leg Curl",
@@ -69,12 +68,19 @@ ejercicios_dict = {
         "Bench Press",
         "Lat Pulldowns",
         "Shoulder Press",
-        "Bayesian Curl",
+        "Preacher Curl",
         "Lateral Raises",
         "Tricep Extension"
     ]
 }
 
+
+# Función para obtener datos de Google Sheets
+def obtener_datos():
+    registros = worksheet.get_all_records()
+    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps"])
+    df["fecha"] = pd.to_datetime(df["fecha"])
+    return df
 
 def graficar_progreso(ejercicio_seleccionado):
     df = obtener_datos()
@@ -95,8 +101,10 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Obtener sets únicos y graficar
     sets_unicos = sorted(df_filtrado["set"].unique())
-    handles = []
-    labels = []
+    handles_kilos = []
+    handles_reps = []
+    labels_kilos = []
+    labels_reps = []
     
     for set_num in sets_unicos:
         df_set = df_filtrado[df_filtrado["set"] == set_num].sort_values(by="fecha")
@@ -105,8 +113,10 @@ def graficar_progreso(ejercicio_seleccionado):
         line_kilos, = ax.plot(df_set["fecha"], df_set["kilos"], marker='o', color=color, label=f"Set {set_num} - Kilos")
         line_reps, = ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', marker='x', color=color, label=f"Set {set_num} - Reps")
         
-        handles.extend([line_kilos, line_reps])
-        labels.extend([f"Set {set_num} - Kilos", f"Set {set_num} - Reps"])
+        handles_kilos.append(line_kilos)
+        labels_kilos.append(f"Set {set_num} - Kilos")
+        handles_reps.append(line_reps)
+        labels_reps.append(f"Set {set_num} - Reps")
     
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
@@ -126,12 +136,54 @@ def graficar_progreso(ejercicio_seleccionado):
     # Agregar cuadrícula
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
-    # Agregar leyenda sencilla debajo del gráfico
-    fig.legend(handles, labels, loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    # Agregar leyenda sencilla en dos filas, primero los kilos y luego las repeticiones
+    legend1 = plt.legend(handles_kilos, labels_kilos, loc='lower center', bbox_to_anchor=(0.5, -0.12), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.20), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    plt.gca().add_artist(legend1)
     
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
+    df = obtener_datos()
+    df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
+    
+    if df_filtrado.empty:
+        st.warning("No hay datos para este ejercicio.")
+        return
+    
+    # Crear figura y ejes
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax2 = ax.twinx()  # Crear solo un eje secundario
 
+    # Obtener sets únicos
+    sets_unicos = sorted(df_filtrado["set"].unique())
+
+    for set_num in sets_unicos:
+        df_set = df_filtrado[df_filtrado["set"] == set_num]
+        df_set = df_set.sort_values(by="fecha")
+        
+        # Graficar peso
+        ax.plot(df_set["fecha"], df_set["kilos"], label=f"Set {set_num} - Kilos", marker='o')
+        
+        # Graficar repeticiones en eje secundario
+        ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', label=f"Set {set_num} - Reps", marker='x', color='red')
+
+    # Formateo del eje X
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    plt.xticks(rotation=45)
+    
+    # Etiquetas y título
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Peso (kg)")
+    ax2.set_ylabel("Repeticiones")
+    ax.set_title(f"Progreso de {ejercicio_seleccionado}")
+    
+    # Leyendas
+    ax.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+    
+    # Mostrar gráfico
+    st.pyplot(fig)
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
 def actualizar_ejercicios(grupo):
