@@ -82,7 +82,6 @@ def obtener_datos():
     df["fecha"] = pd.to_datetime(df["fecha"])
     return df
 
-# Función para graficar el progreso del ejercicio seleccionado
 def graficar_progreso(ejercicio_seleccionado):
     df = obtener_datos()
     df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
@@ -91,39 +90,46 @@ def graficar_progreso(ejercicio_seleccionado):
         st.warning("No hay datos para este ejercicio.")
         return
     
-    # Crear figura y ejes
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax2 = ax.twinx()  # Crear solo un eje secundario
-
-    # Obtener sets únicos
+    # Definir colores para los sets
+    colores_sets = {1: '#58E04F', 2: '#4FD1E0', 3: '#F23F9E', 4: '#F2933F'}
+    
+    # Crear la figura y los ejes
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
+    fig.patch.set_facecolor('#0F1116')  # Fondo de la figura
+    ax.set_facecolor('#313754')  # Fondo del área del gráfico
+    ax2 = ax.twinx()
+    
+    # Obtener sets únicos y graficar
     sets_unicos = sorted(df_filtrado["set"].unique())
-
     for set_num in sets_unicos:
-        df_set = df_filtrado[df_filtrado["set"] == set_num]
-        df_set = df_set.sort_values(by="fecha")
+        df_set = df_filtrado[df_filtrado["set"] == set_num].sort_values(by="fecha")
+        color = colores_sets.get(set_num, '#FFFFFF')  # Color por defecto si hay más sets
         
-        # Graficar peso
-        ax.plot(df_set["fecha"], df_set["kilos"], label=f"Set {set_num} - Kilos", marker='o')
-        
-        # Graficar repeticiones en eje secundario
-        ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', label=f"Set {set_num} - Reps", marker='x', color='red')
-
+        ax.plot(df_set["fecha"], df_set["kilos"], label=f"Set {set_num} - Kilos", marker='o', color=color)
+        ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', label=f"Set {set_num} - Reps", marker='x', color=color)
+    
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, color='white')
     
     # Etiquetas y título
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Peso (kg)")
-    ax2.set_ylabel("Repeticiones")
-    ax.set_title(f"Progreso de {ejercicio_seleccionado}")
+    ax.set_xlabel("Fecha", fontsize=12, color='white')
+    ax.set_ylabel("Peso (kg)", fontsize=12, color='white')
+    ax2.set_ylabel("Repeticiones", fontsize=12, color='white')
+    ax.set_title(f"Progreso de {ejercicio_seleccionado}", fontsize=14, color='white')
     
-    # Leyendas
-    ax.legend(loc='upper left')
-    ax2.legend(loc='upper right')
+    # Personalizar los ticks
+    ax.tick_params(axis='y', labelsize=10, labelcolor='white')
+    ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
     
-    # Mostrar gráfico
+    # Agregar cuadrícula
+    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
+    
+    # Agregar leyendas fuera del gráfico
+    fig.legend(loc='lower center', fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white', ncol=4, bbox_to_anchor=(0.5, -0.15))
+    
+    # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
@@ -299,7 +305,6 @@ if st.button("Registrar"):
     st.success("Datos registrados correctamente.")
     st.text_area("Resumen del entrenamiento", resumen, height=300)
 
-ejercicio_seleccionado = st.selectbox("Selecciona un ejercicio para graficar", obtener_datos()["ejercicio"].unique())
 if st.button("Graficar Progreso"):
     graficar_progreso(ejercicio)
 
