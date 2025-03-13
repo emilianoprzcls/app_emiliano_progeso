@@ -189,23 +189,31 @@ def calcular_promedio_dos_semanas():
     df_diario['Fecha'] = pd.to_datetime(df_diario['Fecha'])  # Asegurar que la columna es datetime
     df_diario.set_index('Fecha', inplace=True)  # Convertir a índice de fecha
 
-    # Obtener la fecha más reciente y calcular los rangos de las últimas dos semanas
-    fecha_max = df_diario.index.max()  # Última fecha registrada
-    fecha_inicio_semana_1 = fecha_max - pd.Timedelta(days=6)  # Inicio de la semana más reciente
+    # Obtener el lunes más reciente como fecha máxima
+    fecha_max = df_diario.index.max()
+    fecha_max_lunes = fecha_max - pd.Timedelta(days=fecha_max.weekday())  # Último lunes
+    fecha_inicio_semana_1 = fecha_max_lunes  # Inicio de la semana más reciente
     fecha_inicio_semana_2 = fecha_inicio_semana_1 - pd.Timedelta(days=7)  # Inicio de la semana anterior
+    fecha_fin_semana_1 = fecha_inicio_semana_1 + pd.Timedelta(days=6)  # Domingo de la semana más reciente
+    fecha_fin_semana_2 = fecha_inicio_semana_2 + pd.Timedelta(days=6)  # Domingo de la semana anterior
 
+    # Filtrar solo los días con más de 1500 calorías
+    df_filtrado = df_diario[df_diario["Calorías"] > 1500]
+    
     # Filtrar las dos semanas
-    df_semana_1 = df_diario.loc[(df_diario.index >= fecha_inicio_semana_1) & (df_diario.index <= fecha_max)]
-    df_semana_2 = df_diario.loc[(df_diario.index >= fecha_inicio_semana_2) & (df_diario.index < fecha_inicio_semana_1)]
+    df_semana_1 = df_filtrado.loc[(df_filtrado.index >= fecha_inicio_semana_1) & (df_filtrado.index <= fecha_fin_semana_1)]
+    df_semana_2 = df_filtrado.loc[(df_filtrado.index >= fecha_inicio_semana_2) & (df_filtrado.index <= fecha_fin_semana_2)]
 
-    # Calcular los promedios de cada semana
+    # Calcular los promedios de cada semana considerando solo los días con más de 1500 calorías
     promedio_semana_1 = df_semana_1["Calorías"].mean() if not df_semana_1.empty else None
     promedio_semana_2 = df_semana_2["Calorías"].mean() if not df_semana_2.empty else None
+    dias_semana_1 = df_semana_1.shape[0]
+    dias_semana_2 = df_semana_2.shape[0]
 
     # Construir el mensaje de salida
     mensaje = ""
     if promedio_semana_1 is not None:
-        mensaje += f" **Última semana ({fecha_inicio_semana_1.date()} - {fecha_max.date()}):** {promedio_semana_1:.2f} kcal/día\n"
+        mensaje += f" **Última semana ({fecha_inicio_semana_1.date()} - {fecha_fin_semana_1.date()}):** {promedio_semana_1:.2f} kcal/día ({dias_semana_1} días considerados)\n"
     else:
         mensaje += "No hay suficientes datos para calcular el promedio de la última semana.\n\n"
 
@@ -213,7 +221,7 @@ def calcular_promedio_dos_semanas():
     mensaje += "\n"
 
     if promedio_semana_2 is not None:
-        mensaje += f" **Semana anterior ({fecha_inicio_semana_2.date()} - {fecha_inicio_semana_1.date()}):** {promedio_semana_2:.2f} kcal/día"
+        mensaje += f" **Semana anterior ({fecha_inicio_semana_2.date()} - {fecha_fin_semana_2.date()}):** {promedio_semana_2:.2f} kcal/día ({dias_semana_2} días considerados)"
     else:
         mensaje += "No hay suficientes datos para calcular el promedio de la semana anterior."
 
