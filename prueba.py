@@ -103,20 +103,25 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Obtener sets únicos y graficar
     sets_unicos = sorted(df_filtrado["set"].unique())
-    handles_kilos = []
+    handles_libras = []
     handles_reps = []
-    labels_kilos = []
+    labels_libras = []
     labels_reps = []
     
     for set_num in sets_unicos:
         df_set = df_filtrado[df_filtrado["set"] == set_num].sort_values(by="fecha")
         color = colores_sets.get(set_num, '#FFFFFF')  # Color por defecto si hay más sets
         
-        line_kilos, = ax.plot(df_set["fecha"], df_set["kilos"], marker='o', color=color, label=f"Set {set_num} - Kilos")
+        line_libras, = ax.plot(df_set["fecha"], df_set["libras"], marker='o', color=color, label=f"Set {set_num} - Libras")
         line_reps, = ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', marker='x', color=color, label=f"Set {set_num} - Reps")
         
-        handles_kilos.append(line_kilos)
-        labels_kilos.append(f"Set {set_num} - Kilos")
+        # Agregar texto con el valor en la última observación de cada set
+        ultima_fila = df_set.iloc[-1]
+        ax.text(ultima_fila["fecha"], ultima_fila["libras"], f"{ultima_fila['libras']:.1f}",
+                fontsize=10, color=color, ha='right', va='bottom')
+        
+        handles_libras.append(line_libras)
+        labels_libras.append(f"Set {set_num} - Libras")
         handles_reps.append(line_reps)
         labels_reps.append(f"Set {set_num} - Reps")
     
@@ -125,13 +130,13 @@ def graficar_progreso(ejercicio_seleccionado):
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     plt.xticks(rotation=45, fontsize=12, color='white')
 
-    # SOLUCIÓN: Asegurar que las etiquetas del eje X sean blancas
+    # Asegurar que las etiquetas del eje X sean blancas
     for label in ax.get_xticklabels():
         label.set_color('white')
     
     # Etiquetas y título
     ax.set_xlabel("Fecha", fontsize=12, color='white')
-    ax.set_ylabel("Peso (kg)", fontsize=12, color='white')
+    ax.set_ylabel("Peso (libras)", fontsize=12, color='white')
     ax2.set_ylabel("Repeticiones", fontsize=12, color='white')
     ax.set_title(f"Progreso de {ejercicio_seleccionado}", fontsize=14, color='white')
     
@@ -139,14 +144,14 @@ def graficar_progreso(ejercicio_seleccionado):
     ax.tick_params(axis='y', labelsize=10, labelcolor='white')
     ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
     
-    # SOLUCIÓN: Ajustar el rango del eje de repeticiones de 0 a 20
+    # Ajustar el rango del eje de repeticiones de 0 a 20
     ax2.set_ylim(0, 20)
     
     # Agregar cuadrícula
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
-    # SOLUCIÓN: Mover la leyenda más abajo para que no se encime
-    legend1 = plt.legend(handles_kilos, labels_kilos, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    # Mover la leyenda más abajo para que no se encime
+    legend1 = plt.legend(handles_libras, labels_libras, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     plt.gca().add_artist(legend1)
     
