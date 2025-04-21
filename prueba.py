@@ -47,6 +47,7 @@ ejercicios_dict = {
     "Pecho y espalda": [
         "Incline Bench Press",
         "Pendlay Row",
+        "Pull Over",
         "Bench Press",
         "Machine Chest Press",
         "Lat Pulldowns",
@@ -71,6 +72,7 @@ ejercicios_dict = {
         "Lat Pulldowns",
         "Shoulder Press",
         "Bayesian Curl",
+        "Pull Over",
         "Lateral Raises",
         "Tricep Extension"
     ]
@@ -91,6 +93,10 @@ def graficar_progreso(ejercicio_seleccionado):
     if df_filtrado.empty:
         st.warning("No hay datos para este ejercicio.")
         return
+
+    # Filtrar solo los últimos 5 días con observaciones
+    fechas_unicas = sorted(df_filtrado["fecha"].unique())[-5:]
+    df_filtrado = df_filtrado[df_filtrado["fecha"].isin(fechas_unicas)]
     
     # Definir colores para los sets
     colores_sets = {1: '#58E04F', 2: '#4FD1E0', 3: '#F23F9E', 4: '#F2933F'}
@@ -157,6 +163,7 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
+
 
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
