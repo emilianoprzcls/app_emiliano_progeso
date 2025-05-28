@@ -98,7 +98,6 @@ def obtener_datos():
 def graficar_progreso(ejercicio_seleccionado, location_seleccionado):
     df = obtener_datos()
     df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
-    df_filtrado = df[df["location"] == location_seleccionado]
     if df_filtrado.empty:
         st.warning("No hay datos para este ejercicio.")
         return
