@@ -35,7 +35,7 @@ st.title("Gráficas por Grupo de Ejercicios")
 # Selección del grupo
 grupos_unicos = data["grupo"].unique()
 grupo_seleccionado = st.selectbox("Selecciona un grupo", grupos_unicos)
-location = st.selectbox("Lugar", options=list(lugares_dict.values()))
+location_seleccionado = st.selectbox("Lugar", options=list(lugares_dict.values()))
 # Selección de fechas personalizadas o preestablecidas
 st.sidebar.header("Filtrar por Fechas")
 
@@ -67,7 +67,7 @@ data_filtrado = data[
     (data["fecha"] >= fecha_inicio) & 
     (data["fecha"] <= fecha_fin)
 ]
-data_filtrado = data_filtrado[(data_filtrado["grupo"] == grupo_seleccionado) & (data_filtrado["location"] == data_filtrado )]
+data_filtrado = data_filtrado[(data_filtrado["grupo"] == grupo_seleccionado) & (data_filtrado["location"] == location_seleccionado)]
 # Crear una lista de ejercicios únicos dentro del grupo seleccionado
 ejercicios_unicos = data_filtrado["ejercicio"].unique()
 
