@@ -135,7 +135,7 @@ def graficar_progreso(ejercicio_seleccionado):
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))  # Grid diario
-    plt.xticks(rotation=45, fontsize=12, color='white')
+    plt.xticks(rotation=90, fontsize=12, color='white')
     
     for label in ax.get_xticklabels():
         label.set_color('white')
@@ -156,7 +156,7 @@ def graficar_progreso(ejercicio_seleccionado):
     ax2.yaxis.set_major_locator(MultipleLocator(1))  # Grid cada 1 rep
     
     # Cuadrícula principal
-    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
+    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color="#60657C")
     
     # Leyendas
     legend1 = plt.legend(handles_libras, labels_libras, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
