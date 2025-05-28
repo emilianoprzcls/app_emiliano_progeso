@@ -62,15 +62,18 @@ if personalizado:
 fecha_inicio = pd.to_datetime(fecha_inicio)
 fecha_fin = pd.to_datetime(fecha_fin)
 
-# Filtrar datos por rango de fechas seleccionado
+# Obtener solo los ejercicios del grupo seleccionado que tienen datos en la ubicación y fechas elegidas
+ejercicios_posibles = data[data["grupo"] == grupo_seleccionado]["ejercicio"].unique()
+
+# Filtrar datos por ubicación y fechas
 data_filtrado = data[
     (data["fecha"] >= fecha_inicio) & 
-    (data["fecha"] <= fecha_fin) &
+    (data["fecha"] <= fecha_fin) & 
     (data["location"] == location_seleccionado)
 ]
 
-# Crear una lista de ejercicios únicos dentro del grupo seleccionado
-ejercicios_unicos = data[data["grupo"] == grupo_seleccionado]["ejercicio"].unique()
+# Cruzar: ejercicios del grupo que existen en los datos filtrados
+ejercicios_unicos = [e for e in ejercicios_posibles if e in data_filtrado["ejercicio"].unique()]
 
 # Determinar el tamaño del mosaico
 num_ejercicios = len(ejercicios_unicos)
