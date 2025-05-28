@@ -17,6 +17,14 @@ worksheet = gc.open_by_key(spreadsheet_id).worksheet("Hoja 1")
 # Crear un DataFrame vacío para almacenar los datos
 data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps"])
 
+# Listado de lugares
+lugares_dict = {
+    "CIDE": "CIDE",
+    "Casa": "Casa",
+    "SmartFit": "SmartFit",
+    "Otro": "Otro"
+}
+
 # Listado de Ejercicios
 ejercicios_dict = {
     "abs": [
@@ -83,7 +91,7 @@ ejercicios_dict = {
 # Función para obtener datos de Google Sheets
 def obtener_datos():
     registros = worksheet.get_all_records()
-    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps"])
+    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
     df["fecha"] = pd.to_datetime(df["fecha"])
     return df
 
@@ -219,7 +227,7 @@ def generar_resumen_sin_asterisco(dataframe):
     return resumen
 
 # Función para agregar datos y generar el resumen
-def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps):
+def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps, location):
     global data
     if kilos and not libras:
         libras = round(kilos * 2.20462, 1)
@@ -233,18 +241,20 @@ def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps):
         "set": set,
         "kilos": kilos,
         "libras": libras,
-        "reps": reps
+        "reps": reps,
+        "location": location
     }
     
     data = pd.concat([data, pd.DataFrame([nuevo_registro])], ignore_index=True)
-    fila = [str(fecha), grupo, ejercicio, set, kilos, libras, reps]
+    fila = [str(fecha), grupo, ejercicio, set, kilos, libras, reps, location]
     worksheet.append_row(fila)
     return generar_resumen_con_asterisco(data)
 
 # Función para obtener resumen de los últimos dos días por grupo
 def obtener_resumen_por_grupo(grupo):
     registros = worksheet.get_all_records()
-    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps"])
+    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
+
     df["fecha"] = pd.to_datetime(df["fecha"])
     df_grupo = df[df["grupo"] == grupo]
 
@@ -259,7 +269,7 @@ def obtener_resumen_por_grupo(grupo):
 def obtener_estadisticas_recientes():
     try:
         registros = worksheet.get_all_records()
-        df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps"])
+        df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
         df["fecha"] = pd.to_datetime(df["fecha"])
         
         # Filtrar por el grupo más reciente
@@ -330,6 +340,7 @@ st.markdown("[Consulta el registro completo en Google Sheets](https://docs.googl
 
 # Selección de fecha y grupo
 fecha = st.date_input("Fecha", datetime.today())
+location = st.selectbox("Lugar", options=list(lugares_dict.values()))
 grupo = st.selectbox("Grupo", options=list(ejercicios_dict.keys()))
 ejercicio = st.selectbox("Ejercicio", options=actualizar_ejercicios(grupo))
 set_num = st.number_input("Set", min_value=1, step=1)
