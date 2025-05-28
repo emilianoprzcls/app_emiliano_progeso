@@ -86,40 +86,56 @@ fig.patch.set_facecolor('#0F1116')
 axes = axes.flatten()  # Aplanar el arreglo de ejes para iterar fácilmente
 
 # Iterar sobre cada ejercicio y graficar
+# Iterar sobre cada ejercicio y graficar
 for idx, ejercicio in enumerate(ejercicios_unicos):
     ax = axes[idx]
     ax.set_facecolor('#313754')  # Cambiar el fondo del gráfico a un gris oscuro
-    
+
     # Filtrar los datos por ejercicio
     df_filtrado = data_filtrado[data_filtrado["ejercicio"] == ejercicio]
-    
+
+    if df_filtrado.empty:
+        continue
+
     # Obtener el máximo de 'kilos' por día
     df_max_kilos_por_dia = df_filtrado.loc[df_filtrado.groupby(df_filtrado["fecha"].dt.date)["kilos"].idxmax()]
-    
+
     # Ordenar por fecha
     df_max_kilos_por_dia = df_max_kilos_por_dia.sort_values(by="fecha")
-    
+
     # Graficar los kilos en el eje izquierdo
-    ax.plot(df_max_kilos_por_dia["fecha"], df_max_kilos_por_dia["kilos"], color="#5CD5DD", label="Kilos")
-    ax.set_ylabel("Kilos", fontsize=12, color="#5CD5DD")  # Etiqueta del eje Y en blanco
-    ax.tick_params(axis="y", labelcolor="white")  # Color de los ticks en blanco
-    
+    ax.plot(df_max_kilos_por_dia["fecha"], df_max_kilos_por_dia["kilos"],
+            color="#5CD5DD", marker='o', label="Kilos")
+    ax.set_ylabel("Kilos", fontsize=12, color="#5CD5DD")
+    ax.tick_params(axis="y", labelcolor="#5CD5DD", labelsize=12)
+
+    # Etiquetas de kg por observación
+    for _, row in df_max_kilos_por_dia.iterrows():
+        ax.text(row["fecha"], row["kilos"] + 1, f"{row['kilos']:.1f} kg",
+                color="#5CD5DD", fontsize=9, ha='center', va='bottom')
+
     # Crear un segundo eje Y para las repeticiones
     ax2 = ax.twinx()
-    ax2.plot(df_max_kilos_por_dia["fecha"], df_max_kilos_por_dia["reps"], color="#DB7DE4", label="Reps")
-    ax2.set_ylabel("Reps", fontsize=12, color="#DB7DE4")  # Etiqueta del eje Y2 en blanco
-    ax2.tick_params(axis="y", labelcolor="white")  # Color de los ticks en blanco
-    
-    # Formatear las fechas en el eje X
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))  # Formato DD/MM/AAAA
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Ajuste automático de intervalos
-    ax.tick_params(axis="x", rotation=90, labelsize=8, labelcolor="white")  # Color de las etiquetas de fecha en blanco
-    
-    # Agregar cuadrícula
-    ax.grid(visible=True, which='major', linestyle='--', linewidth=1, color="#595D73")  # Cuadrícula en blanco
-    
+    ax2.plot(df_max_kilos_por_dia["fecha"], df_max_kilos_por_dia["reps"],
+             color="#DB7DE4", linestyle='--', marker='x', label="Reps")
+    ax2.set_ylabel("Reps", fontsize=12, color="#DB7DE4")
+    ax2.tick_params(axis="y", labelcolor="#DB7DE4", labelsize=12)
+
+    # Etiquetas de reps por observación
+    for _, row in df_max_kilos_por_dia.iterrows():
+        ax2.text(row["fecha"], row["reps"] + 0.5, f"{int(row['reps'])} reps",
+                 color="#DB7DE4", fontsize=9, ha='center', va='bottom')
+
+    # Formatear fechas en el eje X
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.tick_params(axis="x", rotation=90, labelsize=8, labelcolor="white")
+
+    # Agregar grid en eje izquierdo (kilos)
+    ax.grid(visible=True, which='major', axis='y', linestyle='--', linewidth=1, color="#595D73")
+
     # Título del gráfico
-    ax.set_title(f"{ejercicio}", fontsize=20, color="white")  # Título en blanco
+    ax.set_title(f"{ejercicio}", fontsize=18, color="white")
 
 # Ocultar cualquier subplot vacío
 for idx in range(len(ejercicios_unicos), len(axes)):
@@ -127,3 +143,4 @@ for idx in range(len(ejercicios_unicos), len(axes)):
 
 # Mostrar el gráfico en Streamlit
 st.pyplot(fig)
+
