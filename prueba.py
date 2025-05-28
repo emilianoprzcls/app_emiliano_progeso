@@ -134,8 +134,8 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))  # Grid diario
-    plt.xticks(rotation=90, fontsize=12, color='white')
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
+    plt.xticks(rotation=90, fontsize=14, color='white')
     
     for label in ax.get_xticklabels():
         label.set_color('white')
@@ -150,20 +150,24 @@ def graficar_progreso(ejercicio_seleccionado):
     ax.tick_params(axis='y', labelsize=10, labelcolor='white')
     ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
     
-    # Ajustar el eje Y secundario (reps)
+    # Ajustar el eje Y secundario (reps) y mostrar solo su grid
     max_reps = df_filtrado["reps"].max()
     ax2.set_ylim(0, max(20, max_reps + 2))
-    ax2.yaxis.set_major_locator(MultipleLocator(1))  # Grid cada 1 rep
-    
-    # Cuadrícula principal
-    ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color="#60657C")
-    
+    ax2.yaxis.set_major_locator(MultipleLocator(1))
+
+    # Mostrar grid vertical (fechas) en eje X
+    ax.xaxis.grid(True, which='major', linestyle='--', linewidth=0.5, color="#60657C")
+
+    # Mostrar grid horizontal cada rep solo en el eje derecho (ax2)
+    for y in range(0, max(21, max_reps + 2)):
+        ax2.axhline(y=y, linestyle='--', linewidth=0.5, color="#60657C")
+
     # Leyendas
     legend1 = plt.legend(handles_libras, labels_libras, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     plt.gca().add_artist(legend1)
     
-    # Mostrar gráfico
+    # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
 
