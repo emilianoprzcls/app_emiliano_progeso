@@ -95,10 +95,10 @@ def obtener_datos():
     df["fecha"] = pd.to_datetime(df["fecha"])
     return df
 
-def graficar_progreso(ejercicio_seleccionado):
+def graficar_progreso(ejercicio_seleccionado, location_seleccionado):
     df = obtener_datos()
     df_filtrado = df[df["ejercicio"] == ejercicio_seleccionado]
-    
+    df_filtrado = df[df["location"] == location_seleccionado]
     if df_filtrado.empty:
         st.warning("No hay datos para este ejercicio.")
         return
@@ -355,7 +355,7 @@ if st.button("Registrar"):
     st.text_area("Resumen del entrenamiento", resumen, height=300)
 
 if st.button("Graficar Progreso"):
-    graficar_progreso(ejercicio)
+    graficar_progreso(ejercicio, location)
 
 # Botón para obtener resumen de los últimos dos días por grupo
 if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
