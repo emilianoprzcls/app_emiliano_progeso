@@ -5,6 +5,14 @@ import matplotlib.dates as mdates
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
+lugares_dict = {
+    "CIDE": "CIDE",
+    "Libres": "Libres",
+    "Otro": "Otro",
+    "SmartFit": "SmartFit"
+}
+
+
 # Configurar credenciales para acceder a Google Sheets usando st.secrets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["google_creds"], scope)
@@ -27,7 +35,7 @@ st.title("Gráficas por Grupo de Ejercicios")
 # Selección del grupo
 grupos_unicos = data["grupo"].unique()
 grupo_seleccionado = st.selectbox("Selecciona un grupo", grupos_unicos)
-
+location = st.selectbox("Lugar", options=list(lugares_dict.values()))
 # Selección de fechas personalizadas o preestablecidas
 st.sidebar.header("Filtrar por Fechas")
 
@@ -59,8 +67,7 @@ data_filtrado = data[
     (data["fecha"] >= fecha_inicio) & 
     (data["fecha"] <= fecha_fin)
 ]
-data_filtrado = data_filtrado[data_filtrado["grupo"] == grupo_seleccionado]
-
+data_filtrado = data_filtrado[(data_filtrado["grupo"] == grupo_seleccionado) & (data_filtrado["location"] == data_filtrado )]
 # Crear una lista de ejercicios únicos dentro del grupo seleccionado
 ejercicios_unicos = data_filtrado["ejercicio"].unique()
 
