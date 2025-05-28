@@ -132,13 +132,14 @@ def graficar_progreso(ejercicio_seleccionado):
         handles_reps.append(line_reps)
         labels_reps.append(f"Set {set_num} - Reps")
     
-    # Formateo del eje X
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))
-    plt.xticks(rotation=180, fontsize=14, color='white')
-    
-    for label in ax.get_xticklabels():
-        label.set_color('white')
+    # Formateo del eje X con fechas únicas
+    fechas_con_datos = sorted(df_filtrado["fecha"].unique())
+    ax.set_xticks(fechas_con_datos)
+    ax.set_xticklabels([fecha.strftime("%d/%m") for fecha in fechas_con_datos], rotation=90, fontsize=12, color='white')
+
+    # Grid vertical solo en fechas con datos
+    for fecha in fechas_con_datos:
+        ax.axvline(x=fecha, linestyle='--', linewidth=0.5, color="#60657C")
     
     # Etiquetas y título
     ax.set_xlabel("Fecha", fontsize=12, color='white')
@@ -154,9 +155,6 @@ def graficar_progreso(ejercicio_seleccionado):
     max_reps = df_filtrado["reps"].max()
     ax2.set_ylim(0, max(20, max_reps + 2))
     ax2.yaxis.set_major_locator(MultipleLocator(1))
-
-    # Mostrar grid vertical (fechas) en eje X
-    ax.xaxis.grid(True, which='major', linestyle='--', linewidth=0.5, color="#60657C")
 
     # Mostrar grid horizontal cada rep solo en el eje derecho (ax2)
     for y in range(0, max(21, max_reps + 2)):
