@@ -65,11 +65,12 @@ fecha_fin = pd.to_datetime(fecha_fin)
 # Filtrar datos por rango de fechas seleccionado
 data_filtrado = data[
     (data["fecha"] >= fecha_inicio) & 
-    (data["fecha"] <= fecha_fin)
+    (data["fecha"] <= fecha_fin) &
+    (data["location"] == location_seleccionado)
 ]
-data_filtrado = data_filtrado[(data_filtrado["grupo"] == grupo_seleccionado) & (data_filtrado["location"] == location_seleccionado)]
+
 # Crear una lista de ejercicios únicos dentro del grupo seleccionado
-ejercicios_unicos = data_filtrado["ejercicio"].unique()
+ejercicios_unicos = data[data["grupo"] == grupo_seleccionado]["ejercicio"].unique()
 
 # Determinar el tamaño del mosaico
 num_ejercicios = len(ejercicios_unicos)
@@ -87,7 +88,7 @@ for idx, ejercicio in enumerate(ejercicios_unicos):
     ax.set_facecolor('#313754')  # Cambiar el fondo del gráfico a un gris oscuro
     
     # Filtrar los datos por ejercicio
-    df_filtrado = data[data["ejercicio"] == ejercicio]
+    df_filtrado = data_filtrado[data_filtrado["ejercicio"] == ejercicio]
     
     # Obtener el máximo de 'kilos' por día
     df_max_kilos_por_dia = df_filtrado.loc[df_filtrado.groupby(df_filtrado["fecha"].dt.date)["kilos"].idxmax()]
