@@ -5,6 +5,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.ticker import MultipleLocator 
 
 # Configurar credenciales para acceder a Google Sheets usando st.secrets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -132,11 +133,10 @@ def graficar_progreso(ejercicio_seleccionado):
         labels_reps.append(f"Set {set_num} - Reps")
     
     # Formateo del eje X
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))  # Grid diario
     plt.xticks(rotation=45, fontsize=12, color='white')
-
-    # Asegurar que las etiquetas del eje X sean blancas
+    
     for label in ax.get_xticklabels():
         label.set_color('white')
     
@@ -146,22 +146,24 @@ def graficar_progreso(ejercicio_seleccionado):
     ax2.set_ylabel("Repeticiones", fontsize=12, color='white')
     ax.set_title(f"Progreso de {ejercicio_seleccionado}", fontsize=14, color='white')
     
-    # Personalizar los ticks
+    # Ticks
     ax.tick_params(axis='y', labelsize=10, labelcolor='white')
     ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
     
-    # Ajustar el rango del eje de repeticiones de 0 a 20
-    ax2.set_ylim(0, 20)
+    # Ajustar el eje Y secundario (reps)
+    max_reps = df_filtrado["reps"].max()
+    ax2.set_ylim(0, max(20, max_reps + 2))
+    ax2.yaxis.set_major_locator(MultipleLocator(1))  # Grid cada 1 rep
     
-    # Agregar cuadrícula
+    # Cuadrícula principal
     ax.grid(visible=True, which='major', linestyle='--', linewidth=0.5, color='#595D73')
     
-    # Mover la leyenda más abajo para que no se encime
+    # Leyendas
     legend1 = plt.legend(handles_libras, labels_libras, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
     plt.gca().add_artist(legend1)
     
-    # Mostrar gráfico en Streamlit
+    # Mostrar gráfico
     st.pyplot(fig)
 
 
