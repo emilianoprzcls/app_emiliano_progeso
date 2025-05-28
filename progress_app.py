@@ -118,9 +118,6 @@ for idx, ejercicio in enumerate(ejercicios_unicos):
     ax2.set_ylabel("Reps", fontsize=12, color="#DB7DE4")
     ax2.tick_params(axis="y", labelcolor="#DB7DE4", labelsize=12)
 
-    # Remover etiquetas numéricas del eje derecho (pero mantener la línea)
-    ax2.set_yticklabels([])
-
     # Formatear fechas en el eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m/%Y"))
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
