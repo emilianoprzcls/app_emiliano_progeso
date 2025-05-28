@@ -350,7 +350,7 @@ reps = st.number_input("Reps", min_value=1, step=1)
 
 # Botón para registrar datos
 if st.button("Registrar"):
-    resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps)
+    resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps, location)
     st.success("Datos registrados correctamente.")
     st.text_area("Resumen del entrenamiento", resumen, height=300)
 
