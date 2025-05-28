@@ -7,6 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pytz
 import runpy  # Importar runpy para ejecutar prueba.py
 
+
 # Configurar credenciales para acceder a Google Sheets usando st.secrets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["google_creds"], scope)

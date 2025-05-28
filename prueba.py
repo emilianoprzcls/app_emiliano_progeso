@@ -134,8 +134,8 @@ def graficar_progreso(ejercicio_seleccionado):
     
     # Formateo del eje X
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
-    plt.xticks(rotation=90, fontsize=14, color='white')
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))
+    plt.xticks(rotation=180, fontsize=14, color='white')
     
     for label in ax.get_xticklabels():
         label.set_color('white')
