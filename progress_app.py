@@ -34,8 +34,8 @@ st.title("Gráficas por Grupo de Ejercicios")
 
 # Selección del grupo
 grupos_unicos = data["grupo"].unique()
-grupo_seleccionado = st.selectbox("Selecciona un grupo", grupos_unicos)
 location_seleccionado = st.selectbox("Lugar", options=list(lugares_dict.values()))
+grupo_seleccionado = st.selectbox("Selecciona un grupo", grupos_unicos)
 # Selección de fechas personalizadas o preestablecidas
 st.sidebar.header("Filtrar por Fechas")
 
@@ -87,7 +87,7 @@ for idx, ejercicio in enumerate(ejercicios_unicos):
     ax.set_facecolor('#313754')  # Cambiar el fondo del gráfico a un gris oscuro
     
     # Filtrar los datos por ejercicio
-    df_filtrado = data_filtrado[data_filtrado["ejercicio"] == ejercicio]
+    df_filtrado = data[data["ejercicio"] == ejercicio]
     
     # Obtener el máximo de 'kilos' por día
     df_max_kilos_por_dia = df_filtrado.loc[df_filtrado.groupby(df_filtrado["fecha"].dt.date)["kilos"].idxmax()]
