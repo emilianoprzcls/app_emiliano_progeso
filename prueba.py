@@ -20,70 +20,70 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 # Listado de lugares
 lugares_dict = {
     "CIDE": "CIDE",
-    "Casa": "Casa",
-    "SmartFit": "SmartFit",
-    "Otro": "Otro"
+    "Libres": "Libres",
+    "Otro": "Otro",
+    "SmartFit": "SmartFit"
 }
 
 # Listado de Ejercicios
 ejercicios_dict = {
-    "abs": [
-        "Crunch Machine",
-        "Crunch Cables",
-        "Crunch Acostado",
-        "L-Sits",
-        "L-Pull",
-        "Oblique Crunch"
+    "Brazo": [
+        "Bayesian Curl",
+        "Lateral Raises",
+        "Overhead Tricep Extension",
+        "Preacher Curl",
+        "Rear Delt Fly",
+        "Shoulder Press",
+        "Tricep Extension"
     ],
     "PR": [
-        "Squat",
         "Bench Press",
+        "Chin-Ups",
         "Deadlift",
         "Pull-Ups",
-        "Chin-Ups"
-    ],
-    "Pierna": [
-        "Hack Squat",
-        "Squat",
-        "Romanian Deadlifts",
-        "Leg Press",
-        "Leg Extension",
-        "Seated Leg Curl",
-        "Hip Thrust",
-        "Calf Raises",
-        "Bulgarian Split Squat"
+        "Squat"
     ],
     "Pecho y espalda": [
-        "Incline Bench Press",
-        "Pendlay Row",
-        "Pull Over",
         "Bench Press",
-        "Machine Chest Press",
-        "Lat Pulldowns",
         "Chest Fly",
         "Dips",
+        "Incline Bench Press",
+        "Lat Pulldowns",
+        "Machine Chest Press",
+        "Pendlay Row",
+        "Pull Over",
         "Pull-Ups"
     ],
-    "Brazo": [
-        "Overhead Tricep Extension",
-        "Shoulder Press",
-        "Preacher Curl",
-        "Lateral Raises",
-        "Tricep Extension",
-        "Rear Delt Fly",
-        "Bayesian Curl"
+    "Pierna": [
+        "Bulgarian Split Squat",
+        "Calf Raises",
+        "Hack Squat",
+        "Hip Thrust",
+        "Leg Extension",
+        "Leg Press",
+        "Romanian Deadlifts",
+        "Seated Leg Curl",
+        "Squat"
     ],
     "Upper": [
-        "Incline Bench Press",
-        "Pull-Ups",
-        "T-Row",
-        "Bench Press",
-        "Lat Pulldowns",
-        "Shoulder Press",
         "Bayesian Curl",
-        "Pull Over",
+        "Bench Press",
+        "Incline Bench Press",
+        "Lat Pulldowns",
         "Lateral Raises",
+        "Pull Over",
+        "Pull-Ups",
+        "Shoulder Press",
+        "T-Row",
         "Tricep Extension"
+    ],
+    "abs": [
+        "Crunch Acostado",
+        "Crunch Cables",
+        "Crunch Machine",
+        "L-Pull",
+        "L-Sits",
+        "Oblique Crunch"
     ]
 }
 
