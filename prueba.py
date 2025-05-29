@@ -29,12 +29,15 @@ lugares_dict = {
 ejercicios_dict = {
     "Brazo": [
         "Bayesian Curl",
+        "Close-Grip Press"
         "Lateral Raises",
         "Overhead Tricep Extension",
         "Preacher Curl",
+        "Preacher Curl (Dumbell)"
         "Rear Delt Fly",
         "Shoulder Press",
-        "Tricep Extension"
+        "Tricep Extension",
+        "Xo Lateral Raises"
     ],
     "PR": [
         "Bench Press",
@@ -58,6 +61,7 @@ ejercicios_dict = {
         "Bulgarian Split Squat",
         "Calf Raises",
         "Hack Squat",
+        "Hip Extension",
         "Hip Thrust",
         "Leg Extension",
         "Leg Press",
