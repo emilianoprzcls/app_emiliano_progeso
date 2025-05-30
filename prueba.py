@@ -33,8 +33,7 @@ ejercicios_dict = {
         "Lateral Raises",
         "Overhead Tricep Extension",
         "Preacher Curl",
-        "Preacher Curl (Dumbell)"
-        "Rear Delt Fly",
+        "Preacher Curl (Dumbell)",
         "Shoulder Press",
         "Tricep Extension",
         "Xo Lateral Raises"
@@ -55,7 +54,8 @@ ejercicios_dict = {
         "Machine Chest Press",
         "Pendlay Row",
         "Pull Over",
-        "Pull-Ups"
+        "Pull-Ups",
+        "Pull-Ups BW",
     ],
     "Pierna": [
         "Bulgarian Split Squat",
@@ -77,9 +77,10 @@ ejercicios_dict = {
         "Lateral Raises",
         "Pull Over",
         "Pull-Ups",
-        "Shoulder Press",
-        "T-Row",
-        "Tricep Extension"
+        "Pull-Ups BW",
+        "Preacher Curl",
+        "Tricep Extension",
+        "Xo Lateral Raises"
     ],
     "abs": [
         "Crunch Acostado",
