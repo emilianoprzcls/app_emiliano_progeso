@@ -26,63 +26,54 @@ lugares_dict = {
 }
 
 # Listado de Ejercicios
+
 ejercicios_dict = {
-    "Brazo": [
-        "Bayesian Curl",
-        "Close-Grip Press"
-        "Lateral Raises",
-        "Overhead Tricep Extension",
-        "Preacher Curl",
-        "Preacher Curl (Dumbell)",
-        "Shoulder Press",
-        "Tricep Extension",
-        "Xo Lateral Raises"
-    ],
-    "PR": [
+    "Push": [
+        # Pecho
         "Bench Press",
-        "Chin-Ups",
-        "Deadlift",
-        "Pull-Ups",
-        "Squat"
-    ],
-    "Pecho y espalda": [
-        "Bench Press",
-        "Chest Fly",
-        "Dips",
         "Incline Bench Press",
-        "Lat Pulldowns",
+        "Chest Fly",
         "Machine Chest Press",
-        "Pendlay Row",
-        "Pull Over",
+        "Dips",
+        # Hombros
+        "Shoulder Press",
+        "Lateral Raises",
+        "Xo Lateral Raises",
+        # Tríceps
+        "Close-Grip Press",
+        "Tricep Extension",
+        "Overhead Tricep Extension"
+    ],
+
+    "Pull": [
+        # Espalda
+        "Chin-Ups",
         "Pull-Ups",
         "Pull-Ups BW",
+        "Lat Pulldowns",
+        "Pendlay Row",
+        "Pull Over",
+        # Bíceps
+        "Bayesian Curl",
+        "Preacher Curl",
+        "Preacher Curl (Dumbell)"
     ],
-    "Pierna": [
-        "Bulgarian Split Squat",
-        "Calf Raises",
+
+    "Legs": [
+        "Squat",
         "Hack Squat",
-        "Hip Extension",
-        "Hip Thrust",
-        "Leg Extension",
+        "Bulgarian Split Squat",
         "Leg Press",
         "Romanian Deadlifts",
         "Seated Leg Curl",
-        "Squat"
+        "Leg Extension",
+        "Hip Thrust",
+        "Hip Extension",
+        "Calf Raises",
+        "Deadlift"   # Puede usarse también en Pull
     ],
-    "Upper": [
-        "Bayesian Curl",
-        "Bench Press",
-        "Incline Bench Press",
-        "Lat Pulldowns",
-        "Lateral Raises",
-        "Pull Over",
-        "Pull-Ups",
-        "Pull-Ups BW",
-        "Preacher Curl",
-        "Tricep Extension",
-        "Xo Lateral Raises"
-    ],
-    "abs": [
+
+    "Abs": [
         "Crunch Acostado",
         "Crunch Cables",
         "Crunch Machine",
