@@ -19,7 +19,6 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 
 # Listado de lugares
 lugares_dict = {
-    "CIDE": "CIDE",
     "Libres": "Libres",
     "Otro": "Otro",
     "SmartFit": "SmartFit"
