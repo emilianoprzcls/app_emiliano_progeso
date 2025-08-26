@@ -38,6 +38,7 @@ ejercicios_dict = {
         "Shoulder Press",
         "Lateral Raises",
         "Xo Lateral Raises",
+        "Shrugs",
         # Tríceps
         "Close-Grip Press",
         "Tricep Extension",
