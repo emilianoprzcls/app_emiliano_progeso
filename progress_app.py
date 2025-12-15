@@ -9,6 +9,8 @@ lugares_dict = {
     "SmartFit": "SmartFit",
     "Libres": "Libres",
     "Otro": "Otro",
+    "Pedregal": "Pedregal",
+    "Patio": "Patio"
 }
 
 

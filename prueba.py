@@ -21,7 +21,10 @@ data = pd.DataFrame(columns=["fecha", "grupo", "ejercicio", "set", "kilos", "lib
 lugares_dict = {
     "Libres": "Libres",
     "Otro": "Otro",
-    "SmartFit": "SmartFit"
+    "SmartFit": "SmartFit",
+    "Pedregal": "Pedregal",
+    "Patio": "Patio"
+
 }
 
 # Listado de Ejercicios
@@ -30,19 +33,34 @@ ejercicios_dict = {
     "Push": [
         # Pecho
         "Bench Press",
+        "Bench Press Machine",
         "Incline Bench Press",
+        "Incline Bench Machine",
         "Chest Fly",
         "Machine Chest Press",
         "Dips",
         # Hombros
         "Shoulder Press",
         "Lateral Raises",
-        "Xo Lateral Raises",
+        "Front Raises",
         "Shrugs",
         # Tríceps
         "Close-Grip Press",
         "Tricep Extension",
         "Overhead Tricep Extension"
+    ],
+    "Upper": [
+        # Espalda,
+        "Pull-Ups",
+        "Pull-Ups BW",
+        "Lat Pulldowns",
+        "Pendlay Row",
+        "Pull Over",
+        # Bíceps
+        "Bayesian Curl",
+        "Preacher Curl",
+        "Preacher Curl (Dumbell)",
+        "Spider Curl"
     ],
 
     "Pull": [
