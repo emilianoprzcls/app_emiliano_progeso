@@ -74,7 +74,8 @@ ejercicios_dict = {
         # Bíceps
         "Bayesian Curl",
         "Preacher Curl",
-        "Preacher Curl (Dumbell)"
+        "Preacher Curl (Dumbell)",
+        "Spider Curl"
     ],
 
     "Legs": [
