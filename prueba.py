@@ -60,7 +60,24 @@ ejercicios_dict = {
         "Bayesian Curl",
         "Preacher Curl",
         "Preacher Curl (Dumbell)",
-        "Spider Curl"
+        "Spider Curl",
+        # Pecho
+        "Bench Press",
+        "Bench Press Machine",
+        "Incline Bench Press",
+        "Incline Bench Machine",
+        "Chest Fly",
+        "Machine Chest Press",
+        "Dips",
+        # Hombros
+        "Shoulder Press",
+        "Lateral Raises",
+        "Front Raises",
+        "Shrugs",
+        # Tríceps
+        "Close-Grip Press",
+        "Tricep Extension",
+        "Overhead Tricep Extension"
     ],
 
     "Pull": [
