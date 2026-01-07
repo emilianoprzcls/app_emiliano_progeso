@@ -359,6 +359,18 @@ def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps, location):
     worksheet.append_row(fila)
     return generar_resumen_con_asterisco(data)
 
+def eliminar_ultimo_registro():
+    try:
+        # Obtener todos los valores para saber cuántas filas hay
+        total_filas = len(worksheet.get_all_values())
+        if total_filas > 1:  # Evitar borrar el encabezado (fila 1)
+            worksheet.delete_rows(total_filas)
+            return True
+        return False
+    except Exception as e:
+        st.error(f"Error al eliminar: {e}")
+        return False
+
 # Función para obtener resumen de los últimos dos días por grupo
 def obtener_resumen_por_grupo(grupo):
     registros = worksheet.get_all_records()
@@ -458,10 +470,21 @@ libras = st.number_input("Libras", min_value=0.0, step=0.5)
 reps = st.number_input("Reps", min_value=1, step=1)
 
 # Botón para registrar datos
-if st.button("Registrar"):
-    resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps, location)
-    st.success("Datos registrados correctamente.")
-    st.text_area("Resumen del entrenamiento", resumen, height=300)
+# Crear columnas para los botones de acción principal
+col_reg, col_del = st.columns(2)
+
+with col_reg:
+    if st.button("✅ Registrar", use_container_width=True, type="primary"):
+        resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps, location)
+        st.success("Datos registrados correctamente.")
+        st.text_area("Resumen del entrenamiento", resumen, height=200)
+
+with col_del:
+    if st.button("🗑️ Eliminar Último", use_container_width=True):
+        if eliminar_ultimo_registro():
+            st.warning("Se ha eliminado la última fila del registro.")
+        else:
+            st.error("No hay datos para eliminar o la hoja está vacía.")
 
 if "unidad" not in st.session_state:
     st.session_state.unidad = None
