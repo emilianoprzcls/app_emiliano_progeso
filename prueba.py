@@ -127,7 +127,7 @@ def obtener_datos():
     df["fecha"] = pd.to_datetime(df["fecha"])
     return df
 
-def graficar_progreso(ejercicio_seleccionado, location_seleccionado):
+def graficar_progresolb(ejercicio_seleccionado, location_seleccionado):
     df = obtener_datos()
     df_filtrado = df[(df["ejercicio"] == ejercicio_seleccionado) & (df["location"] == location_seleccionado)]
     if df_filtrado.empty:
@@ -207,7 +207,85 @@ def graficar_progreso(ejercicio_seleccionado, location_seleccionado):
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
+def graficar_progresokg(ejercicio_seleccionado, location_seleccionado):
+    df = obtener_datos()
+    df_filtrado = df[(df["ejercicio"] == ejercicio_seleccionado) & (df["location"] == location_seleccionado)]
+    if df_filtrado.empty:
+        st.warning("No hay datos para este ejercicio.")
+        return
 
+    # Filtrar solo los últimos 5 días con observaciones
+    fechas_unicas = sorted(df_filtrado["fecha"].unique())[-5:]
+    df_filtrado = df_filtrado[df_filtrado["fecha"].isin(fechas_unicas)]
+    
+    # Definir colores para los sets
+    colores_sets = {1: '#58E04F', 2: '#4FD1E0', 3: '#F23F9E', 4: '#F2933F'}
+    
+    # Crear la figura y los ejes
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=500, constrained_layout=True)
+    fig.patch.set_facecolor('#0F1116')  # Fondo de la figura
+    ax.set_facecolor('#313754')  # Fondo del área del gráfico
+    ax2 = ax.twinx()
+    
+    # Obtener sets únicos y graficar
+    sets_unicos = sorted(df_filtrado["set"].unique())
+    handles_kilos = []  # Cambiado de libras a kilos
+    handles_reps = []
+    labels_kilos = []   # Cambiado de libras a kilos
+    labels_reps = []
+    
+    for set_num in sets_unicos:
+        df_set = df_filtrado[df_filtrado["set"] == set_num].sort_values(by="fecha")
+        color = colores_sets.get(set_num, '#FFFFFF')
+        
+        # Graficar usando la columna "kilos"
+        line_kilos, = ax.plot(df_set["fecha"], df_set["kilos"], marker='o', color=color, label=f"Set {set_num} - Kg")
+        line_reps, = ax2.plot(df_set["fecha"], df_set["reps"], linestyle='dashed', marker='x', color=color, label=f"Set {set_num} - Reps")
+        
+        # Agregar texto con el valor en la última observación (ahora en kilos)
+        ultima_fila = df_set.iloc[-1]
+        ax.text(ultima_fila["fecha"], ultima_fila["kilos"], f"{ultima_fila['kilos']:.1f} kg",
+                fontsize=10, color=color, ha='right', va='bottom')
+        
+        handles_kilos.append(line_kilos)
+        labels_kilos.append(f"Set {set_num} - Kg")
+        handles_reps.append(line_reps)
+        labels_reps.append(f"Set {set_num} - Reps")
+    
+    # Formateo del eje X
+    fechas_con_datos = sorted(df_filtrado["fecha"].unique())
+    ax.set_xticks(fechas_con_datos)
+    ax.set_xticklabels([fecha.strftime("%d/%m") for fecha in fechas_con_datos], rotation=90, fontsize=12, color='white')
+
+    # Grid vertical
+    for fecha in fechas_con_datos:
+        ax.axvline(x=fecha, linestyle='--', linewidth=0.5, color="#60657C")
+    
+    # Etiquetas y título actualizados a Kilos
+    ax.set_xlabel("Fecha", fontsize=12, color='white')
+    ax.set_ylabel("Peso (kg)", fontsize=12, color='white')
+    ax2.set_ylabel("Repeticiones", fontsize=12, color='white')
+    ax.set_title(f"Progreso de {ejercicio_seleccionado} (Kg)", fontsize=14, color='white')
+    
+    # Ticks
+    ax.tick_params(axis='y', labelsize=10, labelcolor='white')
+    ax2.tick_params(axis='y', labelsize=10, labelcolor='white')
+    
+    # Ajustar el eje Y secundario (reps)
+    max_reps = df_filtrado["reps"].max()
+    ax2.set_ylim(0, max(20, max_reps + 2))
+    ax2.yaxis.set_major_locator(MultipleLocator(1))
+
+    # Grid horizontal
+    for y in range(0, max(21, max_reps + 2)):
+        ax2.axhline(y=y, linestyle='--', linewidth=0.5, color="#60657C")
+
+    # Leyendas actualizadas
+    legend1 = plt.legend(handles_kilos, labels_kilos, loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    legend2 = plt.legend(handles_reps, labels_reps, loc='lower center', bbox_to_anchor=(0.5, -0.4), ncol=len(sets_unicos), fontsize=10, facecolor='#313754', edgecolor='white', labelcolor='white')
+    plt.gca().add_artist(legend1)
+    
+    st.pyplot(fig)
 
 # Función para actualizar las opciones de ejercicio dependiendo del grupo seleccionado
 def actualizar_ejercicios(grupo):
@@ -385,8 +463,16 @@ if st.button("Registrar"):
     st.success("Datos registrados correctamente.")
     st.text_area("Resumen del entrenamiento", resumen, height=300)
 
-if st.button("Graficar Progreso"):
-    graficar_progreso(ejercicio, location)
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("📈 Graficar en Kilos", use_container_width=True):
+        graficar_progresokg(ejercicio, location)
+
+with col2:
+    if st.button("📉 Graficar en Libras", use_container_width=True):
+        # Asegúrate de tener esta función definida o pasar un parámetro a la original
+        graficar_progresolb(ejercicio, location)
 
 # Botón para obtener resumen de los últimos dos días por grupo
 if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
