@@ -463,16 +463,25 @@ if st.button("Registrar"):
     st.success("Datos registrados correctamente.")
     st.text_area("Resumen del entrenamiento", resumen, height=300)
 
+if "unidad" not in st.session_state:
+    st.session_state.unidad = None
+
+# 2. Crear las columnas solo para los botones
 col1, col2 = st.columns(2)
 
 with col1:
     if st.button("📈 Graficar en Kilos", use_container_width=True):
-        graficar_progresokg(ejercicio, location)
+        st.session_state.unidad = "kg"
 
 with col2:
     if st.button("📉 Graficar en Libras", use_container_width=True):
-        # Asegúrate de tener esta función definida o pasar un parámetro a la original
-        graficar_progresolb(ejercicio, location)
+        st.session_state.unidad = "lb"
+
+# 3. Lógica de graficado fuera de las columnas (ocupa el ancho total)
+if st.session_state.unidad == "kg":
+    graficar_progresokg(ejercicio, location)
+elif st.session_state.unidad == "lb":
+    graficar_progresolb(ejercicio, location)
 
 # Botón para obtener resumen de los últimos dos días por grupo
 if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
