@@ -293,24 +293,38 @@ def actualizar_ejercicios(grupo):
 
 # Función para generar resumen de los datos por día (con asterisco en el set más alto)
 def generar_resumen_con_asterisco(dataframe):
+    if dataframe.empty:
+        return "No hay datos registrados."
+        
     dataframe['fecha'] = pd.to_datetime(dataframe['fecha'])
     resumen = ""
+    
+    # Obtener la fecha de la última entrada
     fecha_mas_reciente = dataframe['fecha'].max().date()
-    df_ultimo_dia = dataframe[dataframe['fecha'].dt.date == fecha_mas_reciente]
+    df_hoy = dataframe[dataframe['fecha'].dt.date == fecha_mas_reciente]
+    
+    # Identificar el índice de la última fila absoluta del dataframe para poner el asterisco
+    ultimo_indice_global = dataframe.index[-1]
+    
     resumen += f"Registro {fecha_mas_reciente}:\n"
 
-    for ejercicio in df_ultimo_dia['ejercicio'].unique():
+    # Agrupar por ejercicio para listar todos sus sets
+    for ejercicio in df_hoy['ejercicio'].unique():
         resumen += f"Ejercicio: {ejercicio}\n"
-        df_ejercicio = df_ultimo_dia[df_ultimo_dia['ejercicio'] == ejercicio]
-        max_set = df_ejercicio['set'].max()
-
-        for _, row in df_ejercicio.iterrows():
+        df_ejercicio = df_hoy[df_hoy['ejercicio'] == ejercicio]
+        
+        for idx, row in df_ejercicio.iterrows():
             set_text = f"Set {row['set']}: {row['kilos']} kg, {row['libras']} lb, {row['reps']} reps"
-            if row['set'] == max_set:
+            
+            # Si esta fila es la última que se agregó al DataFrame global, ponemos asterisco
+            if idx == ultimo_indice_global:
                 set_text = "* " + set_text
+            else:
+                set_text = "  " + set_text # Espacio para alinear
+                
             resumen += set_text + "\n"
+        resumen += "\n"
 
-    resumen += "\n"
     return resumen
 
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
@@ -474,13 +488,13 @@ reps = st.number_input("Reps", min_value=1, step=1)
 col_reg, col_del = st.columns(2)
 
 with col_reg:
-    if st.button("✅ Registrar", use_container_width=True, type="primary"):
+    if st.button("Registrar", use_container_width=True):
         resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps, location)
         st.success("Datos registrados correctamente.")
         st.text_area("Resumen del entrenamiento", resumen, height=200)
 
 with col_del:
-    if st.button("🗑️ Eliminar Último", use_container_width=True):
+    if st.button("Eliminar Último", use_container_width=True, type="primary"):
         if eliminar_ultimo_registro():
             st.warning("Se ha eliminado la última fila del registro.")
         else:
