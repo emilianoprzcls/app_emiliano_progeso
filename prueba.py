@@ -311,7 +311,7 @@ def generar_resumen_sin_asterisco(dataframe):
         resumen += "\n"
 
     return resumen
-
+    
 # Función para generar resumen de los datos por día (con asterisco en el set más alto)
 def generar_resumen_con_asterisco(dataframe):
     registros = worksheet.get_all_records()
@@ -326,7 +326,7 @@ def generar_resumen_con_asterisco(dataframe):
     ultimos_dias = df_grupo["fecha"].drop_duplicates().nlargest(1)
     df_ultimos_dias = df_grupo[df_grupo["fecha"].isin(ultimos_dias)]
 
-    return generar_resumen_sin_asterisco(df_ultimos_dias)
+    return resumen
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
 
 
