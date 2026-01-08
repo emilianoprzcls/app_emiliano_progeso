@@ -291,22 +291,6 @@ def graficar_progresokg(ejercicio_seleccionado, location_seleccionado):
 def actualizar_ejercicios(grupo):
     return ejercicios_dict.get(grupo, [])
 
-# Función para generar resumen de los datos por día (con asterisco en el set más alto)
-def generar_resumen_con_asterisco(dataframe):
-    registros = worksheet.get_all_records()
-    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
-
-    df["fecha"] = pd.to_datetime(df["fecha"])
-    df_grupo = df[df["grupo"] == grupo & (df["ejercicio"] == ejercicio)]
-
-    if df_grupo.empty:
-        return "No hay datos para el grupo seleccionado."
-
-    ultimos_dias = df_grupo["fecha"].drop_duplicates().nlargest(1)
-    df_ultimos_dias = df_grupo[df_grupo["fecha"].isin(ultimos_dias)]
-
-    return resumen
-# Función para generar resumen de los datos de los últimos dos días sin asterisco
 def generar_resumen_sin_asterisco(dataframe):
     dataframe['fecha'] = pd.to_datetime(dataframe['fecha'])
     resumen = ""
@@ -327,6 +311,24 @@ def generar_resumen_sin_asterisco(dataframe):
         resumen += "\n"
 
     return resumen
+
+# Función para generar resumen de los datos por día (con asterisco en el set más alto)
+def generar_resumen_con_asterisco(dataframe):
+    registros = worksheet.get_all_records()
+    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
+
+    df["fecha"] = pd.to_datetime(df["fecha"])
+    df_grupo = df[df["grupo"] == grupo & (df["ejercicio"] == ejercicio)]
+
+    if df_grupo.empty:
+        return "No hay datos para el grupo seleccionado."
+
+    ultimos_dias = df_grupo["fecha"].drop_duplicates().nlargest(1)
+    df_ultimos_dias = df_grupo[df_grupo["fecha"].isin(ultimos_dias)]
+
+    return generar_resumen_sin_asterisco(df_ultimos_dias)
+# Función para generar resumen de los datos de los últimos dos días sin asterisco
+
 
 # Función para agregar datos y generar el resumen
 def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps, location):
