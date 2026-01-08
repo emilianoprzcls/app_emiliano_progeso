@@ -292,7 +292,7 @@ def actualizar_ejercicios(grupo):
     return ejercicios_dict.get(grupo, [])
 
 # Función para generar resumen de los datos por día (con asterisco en el set más alto)
-def generar_resumen_con_asterisco(dataframe):
+def generar_resumen_con_asteriscor(dataframe):
     # 1. Convertir a datetime y limpiar
     dataframe['fecha'] = pd.to_datetime(dataframe['fecha'])
     
@@ -328,6 +328,58 @@ def generar_resumen_con_asterisco(dataframe):
             resumen += set_line + "\n"
 
     return resumen
+
+def generar_resumen_con_asteriscor():
+    # 1. Forzar la lectura fresca de los datos directamente de la hoja
+    registros = worksheet.get_all_records()
+    df_fresco = pd.DataFrame(registros)
+    
+    if df_fresco.empty:
+        return "No hay datos registrados aún."
+    
+    # 2. Asegurar formato de fecha
+    df_fresco["fecha"] = pd.to_datetime(df_fresco["fecha"])
+    
+    # 3. Obtener la última fecha registrada en toda la hoja
+    ultima_fecha = df_fresco["fecha"].max()
+    
+    # 4. Filtrar solo los datos de ese último día
+    df_dia = df_fresco[df_fresco["fecha"] == ultima_fecha].copy()
+    
+    # 5. Construir el texto
+    lineas = []
+    lineas.append(f"Resumen del día: {ultima_fecha.date()}")
+    lineas.append("=" * 30)
+    
+    # 6. Agrupar por ejercicio
+    ejercicios_del_dia = df_dia["ejercicio"].unique()
+    
+    for ej in ejercicios_del_dia:
+        lineas.append(f"\n# Ejercicio: {ej}")
+        
+        # Filtrar sets de este ejercicio y ordenarlos
+        df_sets = df_dia[df_dia["ejercicio"] == ej].sort_values(by="set")
+        
+        # Encontrar el set con el valor máximo de kilos para el asterisco
+        max_kilos = df_sets["kilos"].max()
+        
+        for _, row in df_sets.iterrows():
+            # Formatear cada columna para evitar decimales innecesarios
+            s = int(row['set'])
+            k = row['kilos']
+            l = row['libras']
+            r = int(row['reps'])
+            
+            texto_set = f"  Set {s}: {k} kg / {l} lb -> {r} reps"
+            
+            # Si este set tiene el peso máximo, poner asterisco
+            if k == max_kilos and k > 0:
+                texto_set = "* " + texto_set
+            
+            lineas.append(texto_set)
+            
+    # Unir todas las líneas con saltos de línea
+    return "\n".join(lineas)
 
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
 def generar_resumen_sin_asterisco(dataframe):
