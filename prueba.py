@@ -352,7 +352,6 @@ def agregar_datos(fecha, grupo, ejercicio, set, kilos, libras, reps, location):
     data = pd.concat([data, pd.DataFrame([nuevo_registro])], ignore_index=True)
     fila = [str(fecha), grupo, ejercicio, set, kilos, libras, reps, location]
     worksheet.append_row(fila)
-    return generar_resumen_con_asterisco(data)
 
 def eliminar_ultimo_registro():
     try:
@@ -472,7 +471,6 @@ with col_reg:
     if st.button("Registrar", use_container_width=True):
         resumen = agregar_datos(fecha, grupo, ejercicio, set_num, kilos, libras, reps, location)
         st.success("Datos registrados correctamente.")
-        st.text_area("Resumen del entrenamiento", resumen, height=200)
 
 with col_del:
     if st.button("Eliminar Último", use_container_width=True, type="primary"):
