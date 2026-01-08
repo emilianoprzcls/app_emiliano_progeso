@@ -293,24 +293,40 @@ def actualizar_ejercicios(grupo):
 
 # Función para generar resumen de los datos por día (con asterisco en el set más alto)
 def generar_resumen_con_asterisco(dataframe):
+    # 1. Convertir a datetime y limpiar
     dataframe['fecha'] = pd.to_datetime(dataframe['fecha'])
-    resumen = ""
-    fecha_mas_reciente = dataframe['fecha'].max().date()
-    df_ultimo_dia = dataframe[dataframe['fecha'].dt.date == fecha_mas_reciente]
-    resumen += f"Registro {fecha_mas_reciente}:\n"
+    
+    # 2. Obtener la fecha más reciente (solo el día)
+    fecha_mas_reciente = dataframe['fecha'].dt.date.max()
+    
+    # 3. Filtrar el DataFrame para que solo contenga ese día
+    df_ultimo_dia = dataframe[dataframe['fecha'].dt.date == fecha_mas_reciente].copy()
+    
+    if df_ultimo_dia.empty:
+        return "No hay registros para la fecha más reciente."
 
+    resumen = f"Registro {fecha_mas_reciente}:\n"
+
+    # 4. Iterar por cada ejercicio único de ese día
     for ejercicio in df_ultimo_dia['ejercicio'].unique():
-        resumen += f"Ejercicio: {ejercicio}\n"
-        df_ejercicio = df_ultimo_dia[df_ultimo_dia['ejercicio'] == ejercicio]
-        max_set = df_ejercicio['set'].max()
+        resumen += f"\nEjercicio: {ejercicio}\n"
+        
+        # Filtrar y ORDENAR los sets por número (1, 2, 3...)
+        df_ejercicio = df_ultimo_dia[df_ultimo_dia['ejercicio'] == ejercicio].sort_values(by="set")
+        
+        # Identificar el set más alto
+        max_set_val = df_ejercicio['set'].max()
 
         for _, row in df_ejercicio.iterrows():
-            set_text = f"Set {row['set']}: {row['kilos']} kg, {row['libras']} lb, {row['reps']} reps"
-            if row['set'] == max_set:
-                set_text = "* " + set_text
-            resumen += set_text + "\n"
+            # Crear la línea de texto
+            set_line = f"Set {int(row['set'])}: {row['kilos']} kg, {row['libras']} lb, {row['reps']} reps"
+            
+            # Si es el set más alto, poner el asterisco
+            if row['set'] == max_set_val:
+                set_line = "* " + set_line
+            
+            resumen += set_line + "\n"
 
-    resumen += "\n"
     return resumen
 
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
