@@ -306,12 +306,13 @@ def generar_resumen_con_asterisco(dataframe):
 
         for _, row in df_ejercicio.iterrows():
             set_text = f"Set {row['set']}: {row['kilos']} kg, {row['libras']} lb, {row['reps']} reps"
+            resumen += set_text + "\n"
             if row['set'] == max_set:
                 set_text = "* " + set_text
-        resumen += set_text + "\n"
+            resumen += set_text + "\n"
 
     resumen += "\n"
-    return resumen
+    return df_ejercicio.iterrows()
 
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
 def generar_resumen_sin_asterisco(dataframe):
