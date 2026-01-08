@@ -293,24 +293,18 @@ def actualizar_ejercicios(grupo):
 
 # Función para generar resumen de los datos por día (con asterisco en el set más alto)
 def generar_resumen_con_asterisco(dataframe):
-    dataframe['fecha'] = pd.to_datetime(dataframe['fecha'])
-    dataframe = dataframe[dataframe['ejercicio'] == ejercicio]
-    resumen = ""
+    registros = worksheet.get_all_records()
+    df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
 
-    dias_unicos = dataframe['fecha'].dt.date.unique()
-    for dia in dias_unicos[-2:]:
-        resumen += f"DIA {dia}:\n"
-        df_dia = dataframe[dataframe['fecha'].dt.date == dia]
+    df["fecha"] = pd.to_datetime(df["fecha"])
+    df_grupo = df[df["grupo"] == grupo & (df["ejercicio"] == ejercicio)]
 
-        for ejercicio in df_dia['ejercicio'].unique():
-            resumen += f"Ejercicio: {ejercicio}\n"
-            df_ejercicio = df_dia[df_dia['ejercicio'] == ejercicio]
-            
-            for _, row in df_ejercicio.iterrows():
-                set_text = f"Set {row['set']}: {row['kilos']} kg, {row['libras']} lb, {row['reps']} reps"
-                resumen += set_text + "\n"
-        
-        resumen += "\n"
+    if df_grupo.empty:
+        return "No hay datos para el grupo seleccionado."
+
+    ultimos_dias = df_grupo["fecha"].drop_duplicates().nlargest(1)
+    df_ultimos_dias = df_grupo[df_grupo["fecha"].isin(ultimos_dias)]
+    return generar_resumen_sin_asterisco(df_ultimos_dias)
 
     return resumen
 # Función para generar resumen de los datos de los últimos dos días sin asterisco
