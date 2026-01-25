@@ -529,18 +529,18 @@ def obtener_estadisticas_detalladas():
             
             # Cálculo de porcentajes
             pct_k = ((k_hoy - k_antes) / k_antes * 100) if k_antes > 0 else 0
-            pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
+            pct_n = ((r_hoy - r_antes) / n_antes * 100) if r_antes > 0 else 0
 
             resumen_grupos += (f"**G: {grupo.upper()}** ({f_hoy_str} vs {f_antes_str})\n"
                                f"  Reps: {int(r_hoy)} hoy vs {int(r_antes)} antes\n"
-                               f"  Carga: {pct_k:+.1f}% | Fuerza (Norm): {pct_n:+.1f}%\n"
+                               f"  Carga: {pct_k:+.1f}% | Reps: {pct_n:+.1f}%\n"
                                f"  ------------------------------\n")
 
         # 7. CÁLCULO TOTAL DEL DÍA (RESUMEN FINAL)
         t_k_hoy = comparativa["kilos_hoy"].sum()
         t_k_antes = comparativa["kilos_antes"].sum(skipna=True)
-        t_n_hoy = comparativa["norm_hoy"].sum()
-        t_n_antes = comparativa["norm_antes"].sum(skipna=True)
+        t_n_hoy = comparativa["reps_hoy"].sum()
+        t_n_antes = comparativa["reps_antes"].sum(skipna=True)
         
         total_pct_k = ((t_k_hoy - t_k_antes) / t_k_antes * 100) if t_k_antes > 0 else 0
         total_pct_n = ((t_n_hoy - t_n_antes) / t_n_antes * 100) if t_n_antes > 0 else 0
@@ -692,11 +692,6 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
     resumen_dos_dias = obtener_resumen_por_grupo(grupo)
     st.text_area("Resumen de los últimos dos días", resumen_dos_dias, height=300)
 
-# Botón para ver estadísticas del día más reciente
-if st.button("Día Terminado"):
-    estadisticas = obtener_estadisticas_detalladas()
-    st.text_area("Estadísticas del Día", estadisticas, height=300)
-
 if st.button("Día TerminadoD"):
-    estadisticas = obtener_estadisticas_dinamicas()
+    estadisticas = obtener_estadisticas_detalladas()
     st.text_area("Estadísticas del Día", estadisticas, height=300)
