@@ -517,7 +517,8 @@ def obtener_estadisticas_detalladas():
             pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
             
             resumen_grupos += (f"**G: {grupo.upper()}**\n"
-                               f"  Carga: {pct_k:+.1f}% | Fuerza (Norm): {pct_n:+.1f}%\n")
+                               f"  Carga: {pct_k:+.1f}% | Fuerza (Norm): {pct_n:+.1f}%\n"
+                               f"  Reps: {n_hoy} (antes: {n_antes})\n")
 
         # 6. CÁLCULO TOTAL DEL DÍA
         t_k_hoy, t_k_antes = comparativa["kilos_hoy"].sum(), comparativa["kilos_antes"].sum()
