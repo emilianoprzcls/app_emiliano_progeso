@@ -464,6 +464,82 @@ def obtener_estadisticas_recientes():
     except Exception as e:
         return f"Error al procesar: {str(e)}"
     
+def obtener_estadisticas_detalladas():
+    try:
+        registros = worksheet.get_all_records()
+        df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
+        df["fecha"] = pd.to_datetime(df["fecha"])
+        
+        # 1. Datos de hoy (Día más reciente)
+        fecha_mas_reciente = df["fecha"].max()
+        df_hoy = df[df["fecha"] == fecha_mas_reciente].copy()
+        df_hoy["set_num"] = df_hoy.groupby("ejercicio").cumcount() + 1
+        
+        # 2. Buscar el pasado de cada ejercicio
+        ejercicios_hoy = df_hoy["ejercicio"].unique()
+        df_pasado_total = df[(df["ejercicio"].isin(ejercicios_hoy)) & (df["fecha"] < fecha_mas_reciente)].copy()
+        
+        if df_pasado_total.empty:
+            return "Primer entrenamiento registrado. ¡A darle con todo!"
+
+        # Obtener la última fecha de CADA ejercicio
+        ultimas_fechas = df_pasado_total.groupby("ejercicio")["fecha"].max().reset_index()
+        df_antes = pd.merge(df_pasado_total, ultimas_fechas, on=["ejercicio", "fecha"])
+        df_antes["set_num"] = df_antes.groupby("ejercicio").cumcount() + 1
+
+        # 3. Normalización a 8 reps
+        def normalizar(row):
+            return (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0
+
+        df_hoy["norm"] = df_hoy.apply(normalizar, axis=1)
+        df_antes["norm"] = df_antes.apply(normalizar, axis=1)
+
+        # 4. Merge comparativo (Set por Set)
+        # Incluimos 'grupo' de hoy para poder agrupar al final
+        comparativa = pd.merge(
+            df_hoy[["grupo", "ejercicio", "set_num", "norm", "kilos", "reps"]],
+            df_antes[["ejercicio", "set_num", "norm", "kilos", "reps"]],
+            on=["ejercicio", "set_num"],
+            how="left",
+            suffixes=("_hoy", "_antes")
+        )
+
+        # 5. CÁLCULO POR GRUPO
+        resumen_grupos = ""
+        # Agrupamos por el nombre del grupo (Pecho, Brazo, etc.)
+        for grupo, data in comparativa.groupby("grupo"):
+            k_hoy = data["kilos_hoy"].sum()
+            k_antes = data["kilos_antes"].sum(skipna=True)
+            n_hoy = data["norm_hoy"].sum()
+            n_antes = data["norm_antes"].sum(skipna=True)
+            
+            pct_k = ((k_hoy - k_antes) / k_antes * 100) if k_antes > 0 else 0
+            pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
+            
+            resumen_grupos += (f"**G: {grupo.upper()}**\n"
+                               f"  Carga: {pct_k:+.1f}% | Fuerza (Norm): {pct_n:+.1f}%\n")
+
+        # 6. CÁLCULO TOTAL DEL DÍA
+        t_k_hoy, t_k_antes = comparativa["kilos_hoy"].sum(), comparativa["kilos_antes"].sum()
+        t_n_hoy, t_n_antes = comparativa["norm_hoy"].sum(), comparativa["norm_antes"].sum()
+        
+        total_pct_k = ((t_k_hoy - t_k_antes) / t_k_antes * 100) if t_k_antes > 0 else 0
+        total_pct_n = ((t_n_hoy - t_n_antes) / t_n_antes * 100) if t_n_antes > 0 else 0
+
+        # Formatear salida
+        resultado = (f"**RESUMEN POR GRUPO ({fecha_mas_reciente.date()}):**\n"
+                     f"{resumen_grupos}\n"
+                     f"**TOTAL DEL DÍA:**\n"
+                     f"- Mejora Kilos: {total_pct_k:+.2f}%\n"
+                     f"- Mejora Fuerza (Norm): {total_pct_n:+.2f}%\n"
+                     f"- Sets comparados: {comparativa['kilos_antes'].count()} de {len(df_hoy)}")
+        
+        return resultado
+
+    except Exception as e:
+        return f"Error en el cálculo: {str(e)}"
+    
+    
 def obtener_estadisticas_dinamicas():
     try:
         registros = worksheet.get_all_records()
@@ -598,7 +674,7 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
 
 # Botón para ver estadísticas del día más reciente
 if st.button("Día Terminado"):
-    estadisticas = obtener_estadisticas_recientes()
+    estadisticas = obtener_estadisticas_detalladas()
     st.text_area("Estadísticas del Día", estadisticas, height=300)
 
 if st.button("Día TerminadoD"):
