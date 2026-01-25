@@ -104,6 +104,8 @@ ejercicios_dict = {
         "Seated Leg Curl",
         "Leg Extension",
         "Hip Thrust",
+        "Hip Adduction (C)",
+        "Hip Abduction (A)",
         "Hip Extension",
         "Calf Raises",
         "Deadlift"   # Puede usarse también en Pull
