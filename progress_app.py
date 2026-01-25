@@ -6,7 +6,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
 lugares_dict = {
-    "SmartFit": "SmartFit",
     "Libres": "Libres",
     "Otro": "Otro",
     "Pedregal": "Pedregal",
@@ -42,7 +41,7 @@ st.sidebar.header("Filtrar por Fechas")
 
 # Temporadas preestablecidas
 temporadas = {
-    "Smartfit Invierno": ("2025-08-11", pd.Timestamp("today").date()),
+    "Smartfit Invierno": ("2025-22-11", pd.Timestamp("today").date()),
     "Todo": (data["fecha"].min(), data["fecha"].max()),
 }
 
@@ -113,7 +112,7 @@ for idx, ejercicio in enumerate(ejercicios_unicos):
     ).reset_index().sort_values("fecha")
 
     # --- GRAFICAR KILOS (Eje Izquierdo - Azul) ---
-    ax.plot(df_stats["fecha"], df_stats["kilos"], color="#5CD5DD", linewidth=2, label="Kilos Máx", zorder=3)
+    ax.plot(df_stats["fecha"], df_stats["kilos"], color="#5CD5DD", linewidth=4, label="Kilos Máx", zorder=3)
     ax.set_ylabel("Kilos", fontsize=12, color="#5CD5DD")
     ax.tick_params(axis="y", labelcolor="#5CD5DD", labelsize=12)
 

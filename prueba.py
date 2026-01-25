@@ -382,75 +382,165 @@ def obtener_resumen_por_grupo(grupo):
     df_ultimos_dias = df_grupo[df_grupo["fecha"].isin(ultimos_dias)]
     return generar_resumen_sin_asterisco(df_ultimos_dias)
 
-# Función para obtener los datos más recientes de Google Sheets y calcular estadísticas normalizadas a 8 reps
 def obtener_estadisticas_recientes():
     try:
         registros = worksheet.get_all_records()
         df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
         df["fecha"] = pd.to_datetime(df["fecha"])
         
-        # Filtrar por el grupo más reciente
-        grupo_mas_reciente = df["grupo"].iloc[-1]
-        df_grupo = df[df["grupo"] == grupo_mas_reciente]
+        # 1. Filtrar por el grupo y ubicación más reciente
+        ultimo_registro = df.iloc[-1]
+        grupo_actual = ultimo_registro["grupo"]
+        location_actual = ultimo_registro["location"]
         
-        # Obtener el registro más reciente
-        fecha_mas_reciente = df_grupo["fecha"].max()
-        df_reciente = df_grupo[df_grupo["fecha"] == fecha_mas_reciente]
+        df_contexto = df[(df["grupo"] == grupo_actual) & (df["location"] == location_actual)]
         
-        # Obtener la última fecha en que se trabajó este mismo grupo
-        ultimas_fechas = df_grupo["fecha"].drop_duplicates().nlargest(2)
-        fecha_anterior = ultimas_fechas.min()
-        df_anterior = df_grupo[df_grupo["fecha"] == fecha_anterior]
+        # 2. Identificar fechas
+        fechas_disponibles = df_contexto["fecha"].drop_duplicates().nlargest(2).tolist()
+        if len(fechas_disponibles) < 2:
+            return "No hay suficientes entrenamientos previos para este grupo y ubicación para comparar."
         
-        # Normalizar los kilos a 8 reps para ambos DataFrames
-        df_reciente["kilos_normalizados"] = df_reciente.apply(lambda row: (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0, axis=1)
-        df_anterior["kilos_normalizados"] = df_anterior.apply(lambda row: (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0, axis=1)
+        fecha_mas_reciente = fechas_disponibles[0]
+        fecha_anterior = fechas_disponibles[1]
         
-        # Calcular estadísticas para el día más reciente (sin normalizar y normalizado)
-        total_kilos = df_reciente["kilos"].sum(skipna=True)
-        total_sets = len(df_reciente)  # Contamos las entradas, no la suma de los sets
-        total_reps = df_reciente["reps"].sum(skipna=True)
-        kilos_por_set = total_kilos / total_sets if total_sets > 0 else 0
-        total_kilos_normalizados = df_reciente["kilos_normalizados"].sum(skipna=True)
-        kilos_normalizados_por_set = total_kilos_normalizados / total_sets if total_sets > 0 else 0
-        
-        # Calcular estadísticas del día anterior (sin normalizar y normalizado)
-        total_kilos_anterior = df_anterior["kilos"].sum(skipna=True)
-        total_sets_anterior = len(df_anterior)
-        total_reps_anterior = df_anterior["reps"].sum(skipna=True)
-        kilos_por_set_anterior = total_kilos_anterior / total_sets_anterior if total_sets_anterior > 0 else 0
-        total_kilos_normalizados_anterior = df_anterior["kilos_normalizados"].sum(skipna=True)
-        kilos_normalizados_por_set_anterior = total_kilos_normalizados_anterior / total_sets_anterior if total_sets_anterior > 0 else 0
-        
-        # Calcular el porcentaje de aumento en kilos y repeticiones
-        porcentaje_kilos = ((total_kilos - total_kilos_anterior) / total_kilos_anterior) * 100 if total_kilos_anterior > 0 else 0
-        porcentaje_reps = ((total_reps - total_reps_anterior) / total_reps_anterior) * 100 if total_reps_anterior > 0 else 0
-        porcentake_kilos_porset = ((kilos_normalizados_por_set - kilos_normalizados_por_set_anterior) / kilos_normalizados_por_set_anterior) * 100 if kilos_normalizados_por_set_anterior > 0 else 0
+        df_reciente = df_contexto[df_contexto["fecha"] == fecha_mas_reciente].copy()
+        df_anterior_completo = df_contexto[df_contexto["fecha"] == fecha_anterior].copy()
 
-        return (f"**Estadísticas del día más reciente ({fecha_mas_reciente.date()}):**\n"
-                f"- Total de kilos (no normalizado): {total_kilos:.2f}\n"
-                f"- Total de sets: {total_sets}\n"
-                f"- Total de reps: {total_reps}\n"
-                f"- Kilos por set: {kilos_por_set:.2f}\n"
-                f"- Kilos normalizados a 8 reps: {total_kilos_normalizados:.2f}\n"
-                f"- Kilos normalizados por set: {kilos_normalizados_por_set:.2f}\n\n"
-                f"**Estadísticas del día anterior ({fecha_anterior.date()}):**\n"
-                f"- Total de kilos (no normalizado): {total_kilos_anterior:.2f}\n"
-                f"- Total de sets: {total_sets_anterior}\n"
-                f"- Total de reps: {total_reps_anterior}\n"
-                f"- Kilos por set: {kilos_por_set_anterior:.2f}\n"
-                f"- Kilos normalizados a 8 reps: {total_kilos_normalizados_anterior:.2f}\n"
-                f"- Kilos normalizados por set: {kilos_normalizados_por_set_anterior:.2f}\n\n"
-                f"**Comparación con el último día del mismo grupo ({fecha_anterior.date()}):**\n"
-                f"- Kilos aumentados: {porcentaje_kilos:.2f}%\n"
-                f"- Repeticiones aumentadas: {porcentaje_reps:.2f}%\n"
-                f"- Kilos Norm. por set: {porcentake_kilos_porset:.2f}%\n\n")
+        # 3. Normalización (Función auxiliar para limpiar el apply)
+        def normalizar(row):
+            return (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0
 
-    
+        df_reciente["kilos_norm"] = df_reciente.apply(normalizar, axis=1)
+        df_anterior_completo["kilos_norm"] = df_anterior_completo.apply(normalizar, axis=1)
+
+        # 4. Emparejamiento Dinámico (Cruzar sets actuales vs anteriores)
+        # Usamos un merge 'left' para que manden los ejercicios y sets que hiciste HOY
+        df_comparativo = pd.merge(
+            df_reciente[['ejercicio', 'set', 'kilos', 'reps', 'kilos_norm']], 
+            df_anterior_completo[['ejercicio', 'set', 'kilos', 'reps', 'kilos_norm']], 
+            on=['ejercicio', 'set'], 
+            how='left', 
+            suffixes=('_hoy', '_ant')
+        )
+
+        # 5. Cálculos de Hoy
+        total_kilos = df_comparativo["kilos_hoy"].sum()
+        total_reps = df_comparativo["reps_hoy"].sum()
+        total_sets = len(df_comparativo)
+        total_norm_hoy = df_comparativo["kilos_norm_hoy"].sum()
+        norm_por_set_hoy = total_norm_hoy / total_sets if total_sets > 0 else 0
+
+        # 6. Cálculos del Pasado (Solo de los sets que coinciden con hoy)
+        # Usamos fillna(0) por si hoy hiciste un ejercicio o set que no existía la vez pasada
+        total_kilos_ant = df_comparativo["kilos_ant"].fillna(0).sum()
+        total_reps_ant = df_comparativo["reps_ant"].fillna(0).sum()
+        total_norm_ant = df_comparativo["kilos_norm_ant"].fillna(0).sum()
+        norm_por_set_ant = total_norm_ant / total_sets if total_sets > 0 else 0
+
+        # 7. Porcentajes de mejora
+        def calc_pc(actual, anterior):
+            return ((actual - anterior) / anterior) * 100 if anterior > 0 else 0
+
+        p_kilos = calc_pc(total_kilos, total_kilos_ant)
+        p_reps = calc_pc(total_reps, total_reps_ant)
+        p_norm_set = calc_pc(norm_por_set_hoy, norm_por_set_ant)
+
+        return (f"**Resumen: {grupo_actual} @ {location_actual}**\n"
+                f"Comparando {total_sets} sets actuales vs mismos sets sesión anterior\n"
+                f"--- \n"
+                f"**Hoy ({fecha_mas_reciente.date()}):**\n"
+                f"- Volumen Total: {total_kilos:.2f} kg\n"
+                f"- Reps Totales: {total_reps}\n"
+                f"- Norm. por Set: {norm_por_set_hoy:.2f} kg\n\n"
+                f"**Día Anterior ({fecha_anterior.date()}):**\n"
+                f"- Volumen (mismos sets): {total_kilos_ant:.2f} kg\n"
+                f"- Reps (mismos sets): {total_reps_ant}\n"
+                f"- Norm. por Set: {norm_por_set_ant:.2f} kg\n\n"
+                f"**Progreso Real:**\n"
+                f"- Δ Volumen: {p_kilos:+.2f}%\n"
+                f"- Δ Reps: {p_reps:+.2f}%\n"
+                f"- Δ Fuerza (Norm): {p_norm_set:+.2f}%\n")
+
     except Exception as e:
-        print(f"Error al obtener los datos recientes de Google Sheets: {str(e)}")
-        return "Error al obtener los datos."
+        return f"Error al procesar: {str(e)}"
+    
+def obtener_estadisticas_dinamicas():
+    try:
+        registros = worksheet.get_all_records()
+        df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
+        df["fecha"] = pd.to_datetime(df["fecha"])
+        
+        # 1. Identificar el día más reciente y sus datos
+        fecha_mas_reciente = df["fecha"].max()
+        df_hoy = df[df["fecha"] == fecha_mas_reciente].copy()
+        
+        # Crear un identificador de set secuencial por ejercicio para hoy
+        # (Esto asegura que si hiciste 3 sets, se enumeren 1, 2, 3)
+        df_hoy["set_num"] = df_hoy.groupby("ejercicio").cumcount() + 1
+        
+        # 2. Obtener historial del mismo grupo muscular
+        grupo_actual = df_hoy["grupo"].iloc[0]
+        df_grupo = df[(df["grupo"] == grupo_actual) & (df["fecha"] < fecha_mas_reciente)].copy()
+        
+        if df_grupo.empty:
+            return "No hay entrenamientos previos de este grupo para comparar."
 
+        # Identificar la fecha de la sesión anterior
+        fecha_anterior = df_grupo["fecha"].max()
+        df_antes = df_grupo[df_grupo["fecha"] == fecha_anterior].copy()
+        df_antes["set_num"] = df_antes.groupby("ejercicio").cumcount() + 1
+
+        # 3. Función de normalización
+        def normalizar(row):
+            return (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0
+
+        df_hoy["norm"] = df_hoy.apply(normalizar, axis=1)
+        df_antes["norm"] = df_antes.apply(normalizar, axis=1)
+
+        # 4. EL MERGE MÁGICO: Solo comparamos lo que hiciste hoy 
+        # Unimos por Ejercicio y Número de Set
+        comparativa = pd.merge(
+            df_hoy[["ejercicio", "set_num", "norm", "kilos", "reps"]],
+            df_antes[["ejercicio", "set_num", "norm", "kilos", "reps"]],
+            on=["ejercicio", "set_num"],
+            how="left", # "left" asegura que solo queden los sets que hiciste HOY
+            suffixes=("_hoy", "_antes")
+        )
+
+        # 5. Cálculos Dinámicos
+        # Solo sumamos los kilos/reps de la sesión anterior que tengan un par hoy
+        total_kilos_hoy = comparativa["kilos_hoy"].sum()
+        total_kilos_antes = comparativa["kilos_antes"].sum(skipna=True)
+        
+        total_norm_hoy = comparativa["norm_hoy"].sum()
+        total_norm_antes = comparativa["norm_antes"].sum(skipna=True)
+        
+        total_reps_hoy = comparativa["reps_hoy"].sum()
+        total_reps_antes = comparativa["reps_antes"].sum(skipna=True)
+
+        # Porcentajes (basados únicamente en los sets comparables)
+        def calc_pct(actual, previo):
+            return ((actual - previo) / previo) * 100 if previo > 0 else 0
+
+        pct_kilos = calc_pct(total_kilos_hoy, total_kilos_antes)
+        pct_norm = calc_pct(total_norm_hoy, total_norm_antes)
+        pct_reps = calc_pct(total_reps_hoy, total_reps_antes)
+
+        return (f"**Resumen Dinámico ({fecha_mas_reciente.date()})**\n"
+                f"Comparado set por set con sesión del {fecha_anterior.date()}\n"
+                f"--- \n"
+                f"- **Sets realizados hoy:** {len(df_hoy)}\n"
+                f"- **Kilos totales (hoy):** {total_kilos_hoy:.2f}\n"
+                f"- **Kilos Norm. (hoy):** {total_norm_hoy:.2f}\n\n"
+                f"**Progreso Real (Mismos sets):**\n"
+                f"- Aumento en Kilos: {pct_kilos:+.2f}%\n"
+                f"- Aumento en Kilos Norm: {pct_norm:+.2f}%\n"
+                f"- Aumento en Reps: {pct_reps:+.2f}%\n"
+                f"*Nota: Si hoy hiciste más sets que la vez pasada, esos sets extra no tienen base de comparación.*")
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
 # Interfaz en Streamlit
 st.title("Registro de Entrenamiento")
 st.markdown("[Consulta el registro completo en Google Sheets](https://docs.google.com/spreadsheets/d/1gCJRvjkOS-kfy9KwXAsv3BYHoQCwv8tWMgBJIRXb4g0/edit?usp=sharing)")
@@ -509,4 +599,8 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
 # Botón para ver estadísticas del día más reciente
 if st.button("Día Terminado"):
     estadisticas = obtener_estadisticas_recientes()
+    st.text_area("Estadísticas del Día", estadisticas, height=300)
+
+if st.button("Día TerminadoD"):
+    estadisticas = obtener_estadisticas_dinamicas()
     st.text_area("Estadísticas del Día", estadisticas, height=300)
