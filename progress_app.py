@@ -41,8 +41,7 @@ st.sidebar.header("Filtrar por Fechas")
 
 # Temporadas preestablecidas
 temporadas = {
-    "Smartfit Invierno": ("2025-22-11", pd.Timestamp("today").date()),
-    "Todo": (data["fecha"].min(), data["fecha"].max()),
+    "Todo": (data["fecha"].min(), data["fecha"].max())
 }
 
 # Seleccionar temporada o rango personalizado
