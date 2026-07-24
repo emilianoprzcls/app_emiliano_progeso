@@ -638,6 +638,6 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
 if st.button("Día Terminado"):
     estadisticas = obtener_estadisticas_entrenamiento()
     
-    # st.markdown procesa las negritas y el formato correctamente
     st.markdown("### Estadísticas del Día")
-    st.markdown(estadisticas)
+    # Lo envuelve en un cuadro con fondo de color suave
+    st.info(estadisticas)
