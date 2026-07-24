@@ -464,178 +464,121 @@ def obtener_estadisticas_recientes():
     except Exception as e:
         return f"Error al procesar: {str(e)}"
     
-def obtener_estadisticas_detalladas():
+def obtener_estadisticas_entrenamiento():
     try:
         # 1. Cargar datos y preparar DataFrame
         registros = worksheet.get_all_records()
         df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
+        # Pandas leerá tu formato '2026-01-07' sin problemas
         df["fecha"] = pd.to_datetime(df["fecha"])
         
         # 2. Identificar el día más reciente (hoy)
-        fecha_mas_reciente = df["fecha"].max()
-        df_hoy = df[df["fecha"] == fecha_mas_reciente].copy()
+        fecha_hoy = df["fecha"].max()
+        df_hoy = df[df["fecha"] == fecha_hoy].copy()
         
-        # Crear contador de sets dinámico por ejercicio para hoy
+        # Identificador de set secuencial para hoy (1, 2, 3...)
         df_hoy["set_num"] = df_hoy.groupby("ejercicio").cumcount() + 1
         
-        # 3. Buscar el historial de los ejercicios realizados hoy
+        # --- NUEVO: Extraer Location y Ejercicios ---
+        locations = ", ".join(df_hoy["location"].dropna().unique())
         ejercicios_hoy = df_hoy["ejercicio"].unique()
-        df_pasado_total = df[(df["ejercicio"].isin(ejercicios_hoy)) & (df["fecha"] < fecha_mas_reciente)].copy()
+        nombres_ejercicios = ", ".join(ejercicios_hoy)
         
-        if df_pasado_total.empty:
-            return f"Entrenamiento del {fecha_mas_reciente.date()} registrado. No hay datos previos para comparar estos ejercicios."
-
-        # Para cada ejercicio, buscamos la fecha de la última vez que se hizo
-        ultimas_fechas_per_ejercicio = df_pasado_total.groupby("ejercicio")["fecha"].max().reset_index()
-        df_antes_raw = pd.merge(df_pasado_total, ultimas_fechas_per_ejercicio, on=["ejercicio", "fecha"])
+        # 3. Buscar historial de TODOS los ejercicios realizados hoy (Flexibilidad de grupos)
+        df_pasado = df[(df["ejercicio"].isin(ejercicios_hoy)) & (df["fecha"] < fecha_hoy)].copy()
         
-        # Crear contador de sets para el pasado
-        df_antes_raw["set_num"] = df_antes_raw.groupby("ejercicio").cumcount() + 1
+        if df_pasado.empty:
+            return (f"**Entrenamiento del {fecha_hoy.date()}**\n"
+                    f"📍 Ubicación: {locations}\n"
+                    f"🏋️ Ejercicios: {nombres_ejercicios}\n\n"
+                    f"Entrenamiento registrado. No hay datos previos para comparar estos ejercicios.")
 
-        # 4. Normalización a 8 reps
-        def calcular_norm(row):
-            return (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0
-
-        df_hoy["norm"] = df_hoy.apply(calcular_norm, axis=1)
-        df_antes_raw["norm"] = df_antes_raw.apply(calcular_norm, axis=1)
-
-        # 5. MERGE COMPARATIVO (Set por Set)
-        # Usamos how="left" para mandar sobre lo que se hizo HOY
-        comparativa = pd.merge(
-            df_hoy[["grupo", "ejercicio", "set_num", "norm", "kilos", "reps", "fecha"]],
-            df_antes_raw[["ejercicio", "set_num", "norm", "kilos", "reps", "fecha"]],
-            on=["ejercicio", "set_num"],
-            how="left",
-            suffixes=("_hoy", "_antes")
-        )
-
-        # 6. CÁLCULO POR GRUPO MUSCULAR
-        resumen_grupos = ""
-        for grupo, data in comparativa.groupby("grupo"):
-            # Totales del grupo hoy
-            k_hoy = data["kilos_hoy"].sum()
-            r_hoy = data["reps_hoy"].sum()
-            n_hoy = data["norm_hoy"].sum()
-            
-            # Totales del grupo antes (solo sets que coinciden con hoy)
-            k_antes = data["kilos_antes"].sum(skipna=True)
-            r_antes = data["reps_antes"].sum(skipna=True)
-            n_antes = data["norm_antes"].sum(skipna=True)
-            
-            # Fecha anterior promedio para este grupo (para mostrar en el texto)
-            f_hoy_str = fecha_mas_reciente.strftime('%d/%m')
-            f_antes_val = data["fecha_antes"].dropna()
-            f_antes_str = f_antes_val.iloc[0].strftime('%d/%m') if not f_antes_val.empty else "N/A"
-            
-            # Cálculo de porcentajes
-            pct_k = ((k_hoy - k_antes) / k_antes * 100) if k_antes > 0 else 0
-            pct_n = ((r_hoy - r_antes) / n_antes * 100) if r_antes > 0 else 0
-
-            resumen_grupos += (f"**G: {grupo.upper()}** ({f_hoy_str} vs {f_antes_str})\n"
-                               f"  Reps: {int(r_hoy)} hoy vs {int(r_antes)} antes\n"
-                               f"  Carga: {pct_k:+.1f}% | Reps: {pct_n:+.1f}%\n"
-                               f"  ------------------------------\n")
-
-        # 7. CÁLCULO TOTAL DEL DÍA (RESUMEN FINAL)
-        t_k_hoy = comparativa["kilos_hoy"].sum()
-        t_k_antes = comparativa["kilos_antes"].sum(skipna=True)
-        t_n_hoy = comparativa["reps_hoy"].sum()
-        t_n_antes = comparativa["reps_antes"].sum(skipna=True)
+        # Obtener la fecha de la última vez que se hizo CADA ejercicio
+        ultimas_fechas = df_pasado.groupby("ejercicio")["fecha"].max().reset_index()
+        df_antes = pd.merge(df_pasado, ultimas_fechas, on=["ejercicio", "fecha"])
         
-        total_pct_k = ((t_k_hoy - t_k_antes) / t_k_antes * 100) if t_k_antes > 0 else 0
-        total_pct_n = ((t_n_hoy - t_n_antes) / t_n_antes * 100) if t_n_antes > 0 else 0
-
-        # Construcción del mensaje final
-        resultado = (f"**RESUMEN POR GRUPO:**\n\n"
-                     f"{resumen_grupos}\n"
-                     f"**TOTAL DEL ENTRENAMIENTO:**\n"
-                     f"- Mejora Carga Total: {total_pct_k:+.2f}%\n"
-                     f"- Mejora Fuerza (Norm): {total_pct_n:+.2f}%\n"
-                     f"- Sets comparados: {int(comparativa['kilos_antes'].count())} de {len(df_hoy)}\n"
-                     f"- Location(s): {', '.join(df_hoy['location'].unique())}")
-        
-        return resultado
-
-    except Exception as e:
-        return f"Error al procesar estadísticas: {str(e)}"
-    
-    
-def obtener_estadisticas_dinamicas():
-    try:
-        registros = worksheet.get_all_records()
-        df = pd.DataFrame(registros, columns=["fecha", "grupo", "ejercicio", "set", "kilos", "libras", "reps", "location"])
-        df["fecha"] = pd.to_datetime(df["fecha"])
-        
-        # 1. Identificar el día más reciente y sus datos
-        fecha_mas_reciente = df["fecha"].max()
-        df_hoy = df[df["fecha"] == fecha_mas_reciente].copy()
-        
-        # Crear un identificador de set secuencial por ejercicio para hoy
-        # (Esto asegura que si hiciste 3 sets, se enumeren 1, 2, 3)
-        df_hoy["set_num"] = df_hoy.groupby("ejercicio").cumcount() + 1
-        
-        # 2. Obtener historial del mismo grupo muscular
-        grupo_actual = df_hoy["grupo"].iloc[0]
-        df_grupo = df[(df["grupo"] == grupo_actual) & (df["fecha"] < fecha_mas_reciente)].copy()
-        
-        if df_grupo.empty:
-            return "No hay entrenamientos previos de este grupo para comparar."
-
-        # Identificar la fecha de la sesión anterior
-        fecha_anterior = df_grupo["fecha"].max()
-        df_antes = df_grupo[df_grupo["fecha"] == fecha_anterior].copy()
+        # Identificador secuencial para la sesión anterior
         df_antes["set_num"] = df_antes.groupby("ejercicio").cumcount() + 1
 
-        # 3. Función de normalización
+        # 4. Normalización a 8 reps
         def normalizar(row):
             return (row["kilos"] / row["reps"]) * 8 if row["reps"] > 0 else 0
 
         df_hoy["norm"] = df_hoy.apply(normalizar, axis=1)
         df_antes["norm"] = df_antes.apply(normalizar, axis=1)
 
-        # 4. EL MERGE MÁGICO: Solo comparamos lo que hiciste hoy 
-        # Unimos por Ejercicio y Número de Set
+        # 5. EL MERGE: Left Join para asegurar que manda lo de HOY
+        # Si hoy hiciste 4 sets y antes 3, el set 4 quedará en NaN en 'antes' y no alterará la comparativa
         comparativa = pd.merge(
-            df_hoy[["ejercicio", "set_num", "norm", "kilos", "reps"]],
-            df_antes[["ejercicio", "set_num", "norm", "kilos", "reps"]],
+            df_hoy[["grupo", "ejercicio", "set_num", "norm", "kilos", "reps", "fecha"]],
+            df_antes[["ejercicio", "set_num", "norm", "kilos", "reps", "fecha"]],
             on=["ejercicio", "set_num"],
-            how="left", # "left" asegura que solo queden los sets que hiciste HOY
+            how="left",
             suffixes=("_hoy", "_antes")
         )
 
-        # 5. Cálculos Dinámicos
-        # Solo sumamos los kilos/reps de la sesión anterior que tengan un par hoy
-        total_kilos_hoy = comparativa["kilos_hoy"].sum()
-        total_kilos_antes = comparativa["kilos_antes"].sum(skipna=True)
+        # 6. Construcción del encabezado
+        resultado = (f"**RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})**\n"
+                     f"📍 **Location(s):** {locations}\n"
+                     f"🏋️ **Ejercicios:** {nombres_ejercicios}\n"
+                     f"------------------------------\n\n"
+                     f"**RESUMEN POR GRUPO MUSCULAR:**\n\n")
+
+        # 7. CÁLCULO POR GRUPO MUSCULAR (Dinámico)
+        for grupo in comparativa["grupo"].dropna().unique():
+            data = comparativa[comparativa["grupo"] == grupo]
+            
+            k_hoy = data["kilos_hoy"].sum()
+            r_hoy = data["reps_hoy"].sum()
+            n_hoy = data["norm_hoy"].sum()
+            
+            # El skipna=True es clave aquí, ignora los sets de hoy que no tienen par en el pasado
+            k_antes = data["kilos_antes"].sum(skipna=True)
+            r_antes = data["reps_antes"].sum(skipna=True)
+            n_antes = data["norm_antes"].sum(skipna=True)
+            
+            # Formateo de fechas para el grupo
+            f_hoy_str = fecha_hoy.strftime('%d/%m')
+            f_antes_val = data["fecha_antes"].dropna()
+            f_antes_str = f_antes_val.iloc[0].strftime('%d/%m') if not f_antes_val.empty else "N/A"
+            
+            # Cálculos de % corrigiendo el error de variables mixtas
+            pct_k = ((k_hoy - k_antes) / k_antes * 100) if k_antes > 0 else 0
+            pct_r = ((r_hoy - r_antes) / r_antes * 100) if r_antes > 0 else 0
+            pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
+
+            resultado += (f"**G: {grupo.upper()}** ({f_hoy_str} vs {f_antes_str})\n"
+                          f"  Kilos: {k_hoy:.1f} hoy vs {k_antes:.1f} antes ({pct_k:+.1f}%)\n"
+                          f"  Reps:  {int(r_hoy)} hoy vs {int(r_antes)} antes ({pct_r:+.1f}%)\n"
+                          f"  Norm:  {n_hoy:.1f} hoy vs {n_antes:.1f} antes ({pct_n:+.1f}%)\n"
+                          f"------------------------------\n")
+
+        # 8. CÁLCULO TOTAL DEL DÍA
+        t_k_hoy = comparativa["kilos_hoy"].sum()
+        t_k_antes = comparativa["kilos_antes"].sum(skipna=True)
+        t_r_hoy = comparativa["reps_hoy"].sum()
+        t_r_antes = comparativa["reps_antes"].sum(skipna=True)
+        t_n_hoy = comparativa["norm_hoy"].sum()
+        t_n_antes = comparativa["norm_antes"].sum(skipna=True)
         
-        total_norm_hoy = comparativa["norm_hoy"].sum()
-        total_norm_antes = comparativa["norm_antes"].sum(skipna=True)
+        total_pct_k = ((t_k_hoy - t_k_antes) / t_k_antes * 100) if t_k_antes > 0 else 0
+        total_pct_r = ((t_r_hoy - t_r_antes) / t_r_antes * 100) if t_r_antes > 0 else 0
+        total_pct_n = ((t_n_hoy - t_n_antes) / t_n_antes * 100) if t_n_antes > 0 else 0
         
-        total_reps_hoy = comparativa["reps_hoy"].sum()
-        total_reps_antes = comparativa["reps_antes"].sum(skipna=True)
+        sets_comparados = int(comparativa['kilos_antes'].count())
+        sets_totales = len(df_hoy)
 
-        # Porcentajes (basados únicamente en los sets comparables)
-        def calc_pct(actual, previo):
-            return ((actual - previo) / previo) * 100 if previo > 0 else 0
-
-        pct_kilos = calc_pct(total_kilos_hoy, total_kilos_antes)
-        pct_norm = calc_pct(total_norm_hoy, total_norm_antes)
-        pct_reps = calc_pct(total_reps_hoy, total_reps_antes)
-
-        return (f"**Resumen Dinámico ({fecha_mas_reciente.date()})**\n"
-                f"Comparado set por set con sesión del {fecha_anterior.date()}\n"
-                f"--- \n"
-                f"- **Sets realizados hoy:** {len(df_hoy)}\n"
-                f"- **Kilos totales (hoy):** {total_kilos_hoy:.2f}\n"
-                f"- **Kilos Norm. (hoy):** {total_norm_hoy:.2f}\n\n"
-                f"**Progreso Real (Mismos sets):**\n"
-                f"- Aumento en Kilos: {pct_kilos:+.2f}%\n"
-                f"- Aumento en Kilos Norm: {pct_norm:+.2f}%\n"
-                f"- Aumento en Reps: {pct_reps:+.2f}%\n"
-                f"*Nota: Si hoy hiciste más sets que la vez pasada, esos sets extra no tienen base de comparación.*")
+        resultado += (f"**TOTAL DEL ENTRENAMIENTO:**\n"
+                      f"- Mejora Carga Total (Kilos): {total_pct_k:+.2f}%\n"
+                      f"- Mejora Volumen (Reps): {total_pct_r:+.2f}%\n"
+                      f"- Mejora Fuerza (Norm): {total_pct_n:+.2f}%\n"
+                      f"- Sets comparados: {sets_comparados} de {sets_totales}\n"
+                      f"*Nota: Solo se comparan los sets realizados hoy con sus pares exactos de la sesión anterior.*")
+        
+        return resultado
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error al procesar estadísticas: {str(e)}"
     
 # Interfaz en Streamlit
 st.title("Registro de Entrenamiento")
@@ -692,6 +635,6 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
     resumen_dos_dias = obtener_resumen_por_grupo(grupo)
     st.text_area("Resumen de los últimos dos días", resumen_dos_dias, height=300)
 
-if st.button("Día TerminadoD"):
-    estadisticas = obtener_estadisticas_detalladas()
+if st.button("Día Terminado"):
+    estadisticas = obtener_estadisticas_entrenamiento()
     st.text_area("Estadísticas del Día", estadisticas, height=300)
