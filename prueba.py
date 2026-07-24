@@ -516,9 +516,9 @@ def obtener_estadisticas_entrenamiento():
         )
 
         # 6. Construcción del encabezado (Usando Markdown real)
-        resultado = (f"### 📊 RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})\n\n"
-                     f"**📍 Location(s):** {locations}  \n"
-                     f"**🏋️ Ejercicios:** {nombres_ejercicios}  \n"
+        resultado = (f"### RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})\n\n"
+                     f"**Location(s):** {locations}  \n"
+                     f"** Ejercicios:** {nombres_ejercicios}  \n"
                      f"---\n\n") # Línea divisoria
 
         # 7. CÁLCULO POR GRUPO MUSCULAR (Dinámico)
@@ -542,7 +542,7 @@ def obtener_estadisticas_entrenamiento():
             pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
 
             # Formato de lista para que no se amontone
-            resultado += (f"#### 💪 Grupo: {grupo.upper()} ({f_hoy_str} vs {f_antes_str})\n"
+            resultado += (f"#### Grupo: {grupo.upper()} ({f_hoy_str} vs {f_antes_str})\n"
                           f"- **Kilos:** {k_hoy:.1f} hoy vs {k_antes:.1f} antes ({pct_k:+.1f}%)\n"
                           f"- **Reps:** {int(r_hoy)} hoy vs {int(r_antes)} antes ({pct_r:+.1f}%)\n"
                           f"- **Norm:** {n_hoy:.1f} hoy vs {n_antes:.1f} antes ({pct_n:+.1f}%)\n\n")
@@ -563,7 +563,7 @@ def obtener_estadisticas_entrenamiento():
         sets_totales = len(df_hoy)
 
         resultado += (f"---\n\n"
-                      f"#### 📈 TOTAL DEL ENTRENAMIENTO:\n"
+                      f"#### ßTOTAL DEL ENTRENAMIENTO:\n"
                       f"- Mejora Carga Total (Kilos): **{total_pct_k:+.2f}%**\n"
                       f"- Mejora Volumen (Reps): **{total_pct_r:+.2f}%**\n"
                       f"- Mejora Fuerza (Norm): **{total_pct_n:+.2f}%**\n"
