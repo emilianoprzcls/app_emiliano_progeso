@@ -488,8 +488,8 @@ def obtener_estadisticas_entrenamiento():
         
         if df_pasado.empty:
             return (f"### Entrenamiento del {fecha_hoy.date()}\n\n"
-                    f"**📍 Ubicación:** {locations}  \n"
-                    f"**🏋️ Ejercicios:** {nombres_ejercicios}  \n\n"
+                    f"- **Location(s):** {locations}\n"
+                    f"- **Ejercicios:** {nombres_ejercicios}\n\n"
                     f"*Entrenamiento registrado. No hay datos previos para comparar estos ejercicios.*")
 
         # Obtener la fecha de la última vez que se hizo CADA ejercicio
@@ -515,11 +515,11 @@ def obtener_estadisticas_entrenamiento():
             suffixes=("_hoy", "_antes")
         )
 
-        # 6. Construcción del encabezado (Usando Markdown real)
+        # 6. Construcción del encabezado (Sin emojis, corrección de espacios en negritas)
         resultado = (f"### RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})\n\n"
-                     f"** Location(s):** {locations}  \n"
-                     f"** Ejercicios:** {nombres_ejercicios}  \n"
-                     f"---\n\n") # Línea divisoria
+                     f"- **Location(s):** {locations}\n"
+                     f"- **Ejercicios:** {nombres_ejercicios}\n"
+                     f"---\n\n")
 
         # 7. CÁLCULO POR GRUPO MUSCULAR (Dinámico)
         for grupo in comparativa["grupo"].dropna().unique():
@@ -541,7 +541,6 @@ def obtener_estadisticas_entrenamiento():
             pct_r = ((r_hoy - r_antes) / r_antes * 100) if r_antes > 0 else 0
             pct_n = ((n_hoy - n_antes) / n_antes * 100) if n_antes > 0 else 0
 
-            # Formato de lista para que no se amontone
             resultado += (f"#### Grupo: {grupo.upper()} ({f_hoy_str} vs {f_antes_str})\n"
                           f"- **Kilos:** {k_hoy:.1f} hoy vs {k_antes:.1f} antes ({pct_k:+.1f}%)\n"
                           f"- **Reps:** {int(r_hoy)} hoy vs {int(r_antes)} antes ({pct_r:+.1f}%)\n"
