@@ -517,7 +517,7 @@ def obtener_estadisticas_entrenamiento():
 
         # 6. Construcción del encabezado (Usando Markdown real)
         resultado = (f"### RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})\n\n"
-                     f"**Location(s):** {locations}  \n"
+                     f"** Location(s):** {locations}  \n"
                      f"** Ejercicios:** {nombres_ejercicios}  \n"
                      f"---\n\n") # Línea divisoria
 
@@ -563,7 +563,7 @@ def obtener_estadisticas_entrenamiento():
         sets_totales = len(df_hoy)
 
         resultado += (f"---\n\n"
-                      f"#### ßTOTAL DEL ENTRENAMIENTO:\n"
+                      f"#### TOTAL DEL ENTRENAMIENTO:\n"
                       f"- Mejora Carga Total (Kilos): **{total_pct_k:+.2f}%**\n"
                       f"- Mejora Volumen (Reps): **{total_pct_r:+.2f}%**\n"
                       f"- Mejora Fuerza (Norm): **{total_pct_n:+.2f}%**\n"
