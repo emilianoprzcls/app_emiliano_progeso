@@ -519,8 +519,8 @@ def obtener_estadisticas_entrenamiento():
 
         # 6. Construcción del encabezado
         resultado = (f"**RESUMEN DEL ENTRENAMIENTO ({fecha_hoy.date()})**\n"
-                     f"📍 **Location(s):** {locations}\n"
-                     f"🏋️ **Ejercicios:** {nombres_ejercicios}\n"
+                     f"**Location(s):** {locations}\n"
+                     f"**Ejercicios:** {nombres_ejercicios}\n"
                      f"------------------------------\n\n"
                      f"**RESUMEN POR GRUPO MUSCULAR:**\n\n")
 
@@ -637,4 +637,7 @@ if st.button("Obtener Resumen de los Últimos Dos Días por Grupo"):
 
 if st.button("Día Terminado"):
     estadisticas = obtener_estadisticas_entrenamiento()
-    st.text_area("Estadísticas del Día", estadisticas, height=300)
+    
+    # st.markdown procesa las negritas y el formato correctamente
+    st.markdown("### Estadísticas del Día")
+    st.markdown(estadisticas)
