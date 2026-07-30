@@ -37,13 +37,10 @@ ejercicios_dict = {
         "Incline Bench Press",
         "Incline Bench Machine",
         "Chest Fly",
-        "Machine Chest Press",
         "Dips",
         # Hombros
         "Shoulder Press",
         "Lateral Raises",
-        "Front Raises",
-        "Shrugs",
         # Tríceps
         "Close-Grip Press",
         "Tricep Extension",
@@ -58,8 +55,6 @@ ejercicios_dict = {
         "Pull Over",
         # Bíceps
         "Bayesian Curl",
-        "Preacher Curl",
-        "Preacher Curl (Dumbell)",
         "Spider Curl",
         # Pecho
         "Bench Press",
@@ -67,7 +62,6 @@ ejercicios_dict = {
         "Incline Bench Press",
         "Incline Bench Machine",
         "Chest Fly",
-        "Machine Chest Press",
         "Dips",
         # Hombros
         "Shoulder Press",
@@ -82,7 +76,6 @@ ejercicios_dict = {
 
     "Pull": [
         # Espalda
-        "Chin-Ups",
         "Pull-Ups",
         "Pull-Ups BW",
         "Lat Pulldowns",
@@ -105,19 +98,14 @@ ejercicios_dict = {
         "Leg Extension",
         "Hip Thrust",
         "Hip Adduction (C)",
-        "Hip Abduction (A)",
-        "Hip Extension",
-        "Calf Raises",
-        "Deadlift"   # Puede usarse también en Pull
+        "Hip Abduction (A)",# Puede usarse también en Pull
     ],
 
     "Abs": [
-        "Crunch Acostado",
         "Crunch Cables",
+        "Reverse Crunch Cables",
         "Crunch Machine",
-        "L-Pull",
         "L-Sits",
-        "Oblique Crunch"
     ]
 }
 
