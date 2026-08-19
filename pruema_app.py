@@ -199,7 +199,7 @@ def calcular_promedio_dos_semanas():
     fecha_fin_semana_2 = fecha_inicio_semana_2 + pd.Timedelta(days=6)  # Domingo de la semana anterior
 
     # Filtrar solo los días con más de 1500 calorías
-    df_filtrado = df_diario[df_diario["Calorías"] > 1400]
+    df_filtrado = df_diario[df_diario["Calorías"] > 1100]
     
     # Filtrar las dos semanas
     df_semana_1 = df_filtrado.loc[(df_filtrado.index >= fecha_inicio_semana_1) & (df_filtrado.index <= fecha_fin_semana_1)]
